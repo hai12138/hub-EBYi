@@ -1,0 +1,118 @@
+# 使用sklearn来进行分类
+
+import jieba
+import pandas as pd
+from sklearn.feature_extraction.text import CountVectorizer
+from sklearn.neighbors import KNeighborsClassifier
+
+dataset = pd.read_csv('dataset.csv', sep="\t", header=None, nrows=10000)
+
+input_sentence = dataset[0].apply(lambda x: " ".join(jieba.lcut(x)))
+
+vector = CountVectorizer()
+vector.fit(input_sentence.values)
+input_feature = vector.transform(input_sentence.values)
+
+model = KNeighborsClassifier()
+model.fit(input_feature, dataset[1].values)
+
+test_query = "给我播放小酒窝"
+test_sentence = " ".join(jieba.lcut(test_query))
+test_feature = vector.transform([test_sentence])
+print(f"KNN模型预测的结果:{model.predict(test_feature)}")
+
+
+# 使用llm进行分类
+
+from openai import OpenAI
+
+client = OpenAI(
+    api_key="xxxxxxxxxxxxxx",
+    base_url="https://dashscope.aliyuncs.com/compatible-mode/v1"
+)
+
+completion = client.chat.completions.create(
+    model="qwen-flash",
+    messages=[
+        {"role": "user", "content": f"""请帮我进行该文本分类:{"今天天气怎么样"}
+         输出的类别只能从如下进行选择:
+         Travel-Query
+Music-Play
+FilmTele-Play
+Video-Play
+Radio-Listen
+HomeAppliance-Control
+Weather-Query
+Alarm-Update
+Calendar-Query
+TVProgram-Play
+Audio-Play
+         最终输出的内容除了类别以外不输出其他文本
+        """}
+    ]
+)
+
+print(completion.choices[0].message.content)
+
+
+# 整合两个功能，使用fastapi发布
+import jieba
+import pandas as pd
+from fastapi import FastAPI
+from openai import OpenAI
+from sklearn.feature_extraction.text import CountVectorizer
+from sklearn.neighbors import KNeighborsClassifier
+
+app = FastAPI()
+
+dataset = pd.read_csv("dataset.csv", sep="\t", header=None, nrows=10000)
+
+input_sentence = dataset[0].apply(lambda x: " ".join(jieba.lcut(x)))
+
+vector = CountVectorizer()  # 对文本进行提取特征
+vector.fit(input_sentence.values)  # 统计词表
+input_feature = vector.transform(input_sentence.values)
+
+model = KNeighborsClassifier()
+model.fit(input_feature, dataset[1].values)
+
+client = OpenAI(
+    api_key="xxxxxxxxxxxxxxxx",
+    base_url="https://dashscope.aliyuncs.com/compatible-mode/v1")
+
+
+@app.get("/text-cls/ml")
+def text_classfication_by_ml(text: str) -> str:
+    text_sentence = " ".join(jieba.lcut(text))
+    text_feature = vector.transform([text_sentence])
+    return model.predict(text_feature)[0]
+
+
+@app.get("/text-cls/llm")
+def text_classfication_by_llm(text: str) -> str:
+    completions = client.chat.completions.create(
+        model="qwen-flash",
+        messages=[{"role": "user", "content": f"""请帮我进行该文本分类:{text}
+         输出的类别只能从如下进行选择:
+         FilmTele-Play            
+Video-Play               
+Music-Play              
+Radio-Listen           
+Alarm-Update        
+Travel-Query        
+HomeAppliance-Control  
+Weather-Query          
+Calendar-Query      
+TVProgram-Play      
+Audio-Play       
+Other
+         最终输出的内容除了类别以外不输出其他文本
+        """}
+                  ]
+    )
+    return completions.choices[0].message.content
+
+# if __name__ == "__main__":
+#     text_query = "请帮我查下今天的天气"
+#     print(f"机器学习推理结果：{text_classfication_by_ml(text_query)}")
+#     print(f"llm推理结果：{text_classfication_by_llm(text_query)}")
