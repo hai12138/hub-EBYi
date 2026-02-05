@@ -25,7 +25,7 @@ def cut_with_stopwords(text: str) -> str :
     return " ".join(filtered_words)
 
 # 1. 数据加载
-dataFrame = pd.read_table("dataset.csv", header=None, nrows=20000)
+dataFrame = pd.read_table("../dataset/dataset.csv", header=None, nrows=20000)
 dataFrame.columns = ['text', 'label']
 # 2. 中文分词
 print("正在进行中文分词...")

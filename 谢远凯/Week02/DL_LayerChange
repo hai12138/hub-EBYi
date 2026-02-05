@@ -1,0 +1,203 @@
+import pandas as pd
+import torch
+import torch.nn as nn
+import torch.optim as optim
+from torch.utils.data import Dataset, DataLoader
+import matplotlib.pyplot as plt
+import os
+
+# 设置中文字体，避免绘图时中文乱码
+plt.rcParams["font.family"] = ["SimHei", "WenQuanYi Micro Hei", "Heiti TC"]
+plt.rcParams['axes.unicode_minus'] = False
+
+# 数据加载（增加路径容错）
+data_path = "../Week01/dataset.csv"
+# 如果上级目录不存在，尝试当前目录
+if not os.path.exists(data_path):
+    data_path = "dataset.csv"
+    print(f"使用当前目录的数据集: {data_path}")
+
+dataset = pd.read_csv(data_path, sep="\t", header=None)
+texts = dataset[0].tolist()
+string_labels = dataset[1].tolist()
+
+# 标签编码
+label_to_index = {label: i for i, label in enumerate(set(string_labels))}
+numerical_labels = [label_to_index[label] for label in string_labels]
+
+# 字符编码
+char_to_index = {'<pad>': 0}
+for text in texts:
+    for char in text:
+        if char not in char_to_index:
+            char_to_index[char] = len(char_to_index)
+
+index_to_char = {i: char for char, i in char_to_index.items()}
+vocab_size = len(char_to_index)
+max_len = 40
+
+
+# 定义数据集类
+class CharBoWDataset(Dataset):
+    def __init__(self, texts, labels, char_to_index, max_len, vocab_size):
+        self.texts = texts
+        self.labels = torch.tensor(labels, dtype=torch.long)
+        self.char_to_index = char_to_index
+        self.max_len = max_len
+        self.vocab_size = vocab_size
+        self.bow_vectors = self._create_bow_vectors()
+
+    def _create_bow_vectors(self):
+        tokenized_texts = []
+        for text in self.texts:
+            tokenized = [self.char_to_index.get(char, 0) for char in text[:self.max_len]]
+            tokenized += [0] * (self.max_len - len(tokenized))
+            tokenized_texts.append(tokenized)
+
+        bow_vectors = []
+        for text_indices in tokenized_texts:
+            bow_vector = torch.zeros(self.vocab_size)
+            for index in text_indices:
+                if index != 0:
+                    bow_vector[index] += 1
+            bow_vectors.append(bow_vector)
+        return torch.stack(bow_vectors)
+
+    def __len__(self):
+        return len(self.texts)
+
+    def __getitem__(self, idx):
+        return self.bow_vectors[idx], self.labels[idx]
+
+
+# 定义模型类
+class SimpleClassifier(nn.Module):
+    def __init__(self, input_dim, hidden_dim, output_dim):
+        super(SimpleClassifier, self).__init__()
+        self.fc1 = nn.Linear(input_dim, hidden_dim)
+        self.relu = nn.ReLU()
+        self.fc2 = nn.Linear(hidden_dim, output_dim)
+
+    def forward(self, x):
+        out = self.fc1(x)
+        out = self.relu(out)
+        out = self.fc2(out)
+        return out
+
+
+# 封装训练函数（核心修改：记录每轮Loss）
+def train_model(hidden_dim, dataloader, vocab_size, output_dim, num_epochs=20, lr=0.01):
+    """
+    训练模型并返回每轮的Loss列表
+
+    参数:
+        hidden_dim: 隐藏层维度
+        dataloader: 数据加载器
+        vocab_size: 词汇表大小
+        output_dim: 输出维度（类别数）
+        num_epochs: 训练轮数
+        lr: 学习率
+
+    返回:
+        epoch_losses: 每轮的平均Loss列表
+    """
+    # 初始化模型、损失函数、优化器
+    model = SimpleClassifier(vocab_size, hidden_dim, output_dim)
+    criterion = nn.CrossEntropyLoss()
+    optimizer = optim.SGD(model.parameters(), lr=lr)
+
+    # 记录每轮的Loss
+    epoch_losses = []
+
+    for epoch in range(num_epochs):
+        model.train()
+        running_loss = 0.0
+
+        for idx, (inputs, labels) in enumerate(dataloader):
+            optimizer.zero_grad()
+            outputs = model(inputs)
+            loss = criterion(outputs, labels)
+            loss.backward()
+            optimizer.step()
+            running_loss += loss.item()
+
+        # 计算本轮平均Loss并记录
+        avg_loss = running_loss / len(dataloader)
+        epoch_losses.append(avg_loss)
+        print(f"隐藏层维度 {hidden_dim} | Epoch [{epoch + 1}/{num_epochs}], Loss: {avg_loss:.4f}")
+
+    return epoch_losses, model
+
+
+# 准备数据加载器
+char_dataset = CharBoWDataset(texts, numerical_labels, char_to_index, max_len, vocab_size)
+dataloader = DataLoader(char_dataset, batch_size=32, shuffle=True)
+
+# 定义要测试的不同隐藏层维度（可根据需要修改）
+hidden_dims = [32, 64, 128, 256]
+output_dim = len(label_to_index)
+num_epochs = 20
+
+# 存储不同隐藏层维度的Loss记录
+loss_records = {}
+trained_models = {}
+
+# 遍历不同隐藏层维度进行训练
+print("开始训练不同隐藏层维度的模型...")
+for hd in hidden_dims:
+    print(f"\n========== 训练隐藏层维度: {hd} ==========")
+    losses, model = train_model(hd, dataloader, vocab_size, output_dim, num_epochs)
+    loss_records[hd] = losses
+    trained_models[hd] = model
+
+# 绘制Loss变化曲线
+plt.figure(figsize=(10, 6))
+for hd, losses in loss_records.items():
+    plt.plot(range(1, num_epochs + 1), losses, marker='o', label=f'隐藏层维度 {hd}')
+
+plt.xlabel('训练轮数 (Epoch)')
+plt.ylabel('损失值 (Loss)')
+plt.title('不同隐藏层维度下的Loss变化曲线')
+plt.legend()
+plt.grid(True, alpha=0.3)
+plt.tight_layout()
+# 保存图片（可选）
+plt.savefig('hidden_dim_loss_curve.png', dpi=300)
+# 显示图片
+plt.show()
+
+
+# 分类预测函数（使用最优模型，这里选最后一个，也可根据Loss选）
+def classify_text(text, model, char_to_index, vocab_size, max_len, index_to_label):
+    tokenized = [char_to_index.get(char, 0) for char in text[:max_len]]
+    tokenized += [0] * (max_len - len(tokenized))
+
+    bow_vector = torch.zeros(vocab_size)
+    for index in tokenized:
+        if index != 0:
+            bow_vector[index] += 1
+
+    bow_vector = bow_vector.unsqueeze(0)
+
+    model.eval()
+    with torch.no_grad():
+        output = model(bow_vector)
+
+    _, predicted_index = torch.max(output, 1)
+    predicted_index = predicted_index.item()
+    predicted_label = index_to_label[predicted_index]
+
+    return predicted_label
+
+
+# 测试预测（使用隐藏层维度256的模型）
+index_to_label = {i: label for label, i in label_to_index.items()}
+best_model = trained_models[256]  # 可根据Loss曲线选择最优模型
+
+new_text = "帮我导航到北京"
+predicted_class = classify_text(new_text, best_model, char_to_index, vocab_size, max_len, index_to_label)
+print(f"\n输入 '{new_text}' 预测为: '{predicted_class}'")
+
+new_text_2 = "查询明天北京的天气"
+predicted_class_2 = classify_text(new_text_2, best_model, char_to_index, vocab_size, max_len, index_to_label)
+print(f"输入 '{new_text_2}' 预测为: '{predicted_class_2}'")
