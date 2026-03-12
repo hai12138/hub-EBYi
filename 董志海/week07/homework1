@@ -1,0 +1,61 @@
+
+问题 1: BERT 文本分类和实体识别有什么关系？分别使用什么 loss
+关系：
+1.两个任务共享同一个 BERT 编码器（self.bert），利用 BERT 的预训练知识
+2.文本分类使用 [CLS] 位置的输出（pooler_output，维度 768）
+实体识别使用每个 token 的输出（token_output，维度 seq_len × 768）
+3.序列分类头：nn.Linear(768, seq_num_labels) - 映射到意图类别数
+Token 分类头：nn.Linear(768, token_num_labels) - 映射到实体标签数（B/I/O 标注体系）
+
+loss：
+文本分类：使用 CrossEntropyLoss 计算意图分类的损失
+实体识别:使用 CrossEntropyLoss 计算实体识别的损失，但只计算有效 token（attention_mask=1）的损失，忽略 padding 部分
+
+问题 2: 多任务训练 loss = seq_loss + token_loss 有什么坏处？如果存在训练不平衡的情况，如何处理？
+
+坏处
+1. 量级不平衡：
+   - `seq_loss` 是句子级别的，每个样本一个 loss 值
+   - `token_loss` 是 token 级别的，每个样本有多个 loss 值（取决于句子长度）
+   - 即使取了平均，token_loss 的数量级通常远大于 seq_loss，导致训练被 token 任务主导
+
+2. 收敛速度不同：
+   - 两个任务可能收敛速度不同，简单的任务很快收敛，复杂的任务需要更多训练
+   - 固定权重无法适应这种动态变化
+
+3. 梯度冲突：
+   - 两个任务的梯度方向可能不一致，相互干扰
+   - 可能导致模型在两个任务上都达不到最优
+
+4. 难以调参：
+   - 需要手动调整两个 loss 的权重比例
+   - 不同数据集、不同任务需要不同的权重配置
+
+解决方案：
+1. 加权求和：
+   loss = w1 * seq_loss + w2 * token_loss
+
+
+2. 动态权重调整：
+   - 不确定性加权 Kendall et al., 2018）：
+     # 学习任务的不确定性参数
+     log_var1 = nn.Parameter(torch.zeros(1))
+     log_var2 = nn.Parameter(torch.zeros(1))
+
+     loss = (seq_loss / torch.exp(log_var1) + log_var1) +
+            (token_loss / torch.exp(log_var2) + log_var2)
+
+
+3. 梯度手术（Gradient Surgery）：
+   - 当两个任务梯度冲突时，投影梯度到另一个梯度的法平面
+
+4. 课程学习：
+   - 先训练简单的任务，再逐步引入复杂任务
+   - 或者先单独预训练每个任务，再进行联合微调
+
+5. 自适应损失平衡（如 GradNorm）：
+   - 根据各任务的训练进度动态调整权重
+   - 保持各任务以相似的速度学习
+
+6. 帕累托多任务学习：
+   - 寻找帕累托最优解，而不是简单加权和
