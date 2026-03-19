@@ -1,0 +1,123 @@
+import json
+import os
+import re
+from openai import OpenAI
+
+
+client = OpenAI(
+    api_key=os.getenv("OPENAI_API_KEY", "<YOUR_KEY>"),
+    base_url="http://localhost:11434/v1"
+)
+
+
+def build_prompt(user_text: str):
+    """
+    构造提示词
+    """
+
+    instruction = """
+你是一个中文智能助手，需要完成对用户请求的结构化理解。
+
+你的任务包括两个部分：
+1）识别用户请求所属领域 domain
+2）识别用户行为意图 intent
+3）从原句中抽取实体 slots
+
+【domain 可选值】
+music / app / radio / lottery / stock / novel / weather / match / map / website / news / message / contacts / translation / tvchannel / cinemas / cookbook / joke / riddle / telephone / video / train / poetry / flight / epg / health / email / bus / story
+
+【intent 可选值】
+OPEN / SEARCH / REPLAY_ALL / NUMBER_QUERY / DIAL / CLOSEPRICE_QUERY / SEND / LAUNCH / PLAY / REPLY / RISERATE_QUERY / DOWNLOAD / QUERY / LOOK_BACK / CREATE / FORWARD / DATE_QUERY / SENDCONTACTS / DEFAULT / TRANSLATION / VIEW / NaN / ROUTE / POSITION
+
+【slots 标签】
+code / Src / startDate_dateOrig / film / endLoc_city / artistRole / location_country / location_area / author / startLoc_city / season / dishNamet / media / datetime_date / episode / teleOperator / questionWord / receiver / ingredient / name / startDate_time / startDate_date / location_province / endLoc_poi / artist / dynasty / area / location_poi / relIssue / Dest / content / keyword / target / startLoc_area / tvchannel / type / song / queryField / awayName / headNum / homeName / decade / payment / popularity / tag / startLoc_poi / date / startLoc_province / endLoc_province / location_city / absIssue / utensil / scoreDescr / dishName / endLoc_area / resolution / yesterday / timeDescr / category / subfocus / theatre / datetime_time
+
+【抽取规则】
+
+1 所有 slot value 必须来自原始文本
+2 不允许编造不存在的信息
+3 如果没有实体，slots 返回 {}
+4 只输出 JSON，不要解释
+5 JSON 必须包含字段：
+   text / domain / intent / slots
+
+【输出模板】
+
+{
+ "text": "<原始文本>",
+ "domain": "<领域>",
+ "intent": "<意图>",
+ "slots": { }
+}
+
+"""
+
+    return [
+        {"role": "system", "content": instruction},
+        {"role": "user", "content": user_text}
+    ]
+
+
+def call_llm(text: str):
+
+    messages = build_prompt(text)
+
+    response = client.chat.completions.create(
+        model="qwen3:0.6b",
+        temperature=0,
+        messages=messages
+    )
+
+    return response.choices[0].message.content.strip()
+
+
+def parse_output(text, raw_output):
+    """
+    解析模型输出
+    """
+
+    raw_output = re.sub(r"```json|```", "", raw_output).strip()
+
+    try:
+        result = json.loads(raw_output)
+    except:
+        result = {
+            "text": text,
+            "domain": "DEFAULT",
+            "intent": "DEFAULT",
+            "slots": {},
+            "error": "invalid_json"
+        }
+
+    return result
+
+
+def run_inference(input_file, output_file):
+
+    with open(input_file, "r", encoding="utf-8") as f:
+        data = json.load(f)
+
+    outputs = []
+
+    for sample in data:
+
+        text = sample["text"]
+
+        raw = call_llm(text)
+
+        result = parse_output(text, raw)
+
+        outputs.append(result)
+
+        print(json.dumps(result, ensure_ascii=False, indent=2))
+
+    with open(output_file, "w", encoding="utf-8") as f:
+        json.dump(outputs, f, ensure_ascii=False, indent=2)
+
+
+if __name__ == "__main__":
+
+    input_path = "data/test.json"
+    output_path = "data/test_pred.json"
+
+    run_inference(input_path, output_path)

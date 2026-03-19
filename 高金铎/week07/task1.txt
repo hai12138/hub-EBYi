@@ -1,0 +1,10 @@
+1.bert 文本分类和实体识别有什么关系，分别使用什么 loss？
+两者本质都是基于BERT的下游任务，只是预测粒度不同。文本分类是sequence-level任务，通常使用[CLS]向量进行分类；而命名实体识别是token-level任务
+，需要对每个token进行标签预测，通常使用BERT输出的token embedding接Linear或CRF层。
+文本分类一般使用CrossEntropyLoss；NER可以使用token-level CrossEntropyLoss，也可以使用CRF loss来建模标签之间的依赖关系。
+
+2. 多任务训练 loss = seq_loss + token_loss 有什么坏处，如果存在训练不平衡的情况，如何处理？
+在多任务训练中，如果直接使用 loss = seq_loss + token_loss，默认两个任务的重要性和损失尺度是相同的，但实际情况往往不是这样。
+比如文本分类是句子级任务，每个样本只有一个 loss，而实体识别是 token 级任务，一个句子会产生多个 token loss，因此 token_loss 的数值通常更大，容易主导训练，导致文本分类任务学习不足。
+此外两个任务共享同一个 BERT encoder，也可能出现梯度冲突的问题，影响训练稳定性。
+如果出现训练不平衡，常见的处理方法包括：给不同任务的loss加权，或者对loss做归一化，使它们的量级接近。
