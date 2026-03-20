@@ -1,0 +1,105 @@
+from pydantic import BaseModel, Field
+
+import openai
+
+client = openai.OpenAI(
+    api_key="sk-963f1ebbfa2545d0b902ab11f6dd9786",
+    base_url="https://dashscope.aliyuncs.com/compatible-mode/v1"
+)
+
+
+
+tools = [{
+    "type": "function",
+    "function": {
+        "name": "Translation",
+        "description": "根据用户提供的信息查询文本翻译",
+        "parameters": {
+            "type": "object",
+            "properties": {
+                "beforeTranslation": {
+                    "description": "原始语种",
+                    "title": "BeforeTranslation",
+                    "type": "string"
+                },
+                "afterTranslation": {
+                    "description": "目标语种",
+                    "title": "AfterTranslation",
+                    "type": "string"
+                },
+                "text": {
+                    "description": "待翻译的文本",
+                    "title": "Text",
+                    "type": "string"
+                }
+            },
+            "required": ["beforeTranslation", "afterTranslation", "text"]
+        }
+    }
+
+}]
+
+message = [{
+    "role": "user",
+    "content": "帮我把 hello 翻译为 阿拉伯语"
+}]
+
+response = client.chat.completions.create(
+    model="qwen-plus",
+    messages=message,
+    tools=tools,
+    tool_choice="auto"
+)
+# result = response.choices[0].message
+result = response.choices[0].message.tool_calls[0].function
+
+print(result)
+
+
+class ExtractionAgent:
+    def __init__(self, model_name: str):
+        self.model_name = model_name
+
+    def call(self, user_prompt, response_model):
+        message = [{
+            "role": "system",
+            "content": "请使用中文进行回复"
+        },{
+            "role": "user",
+            "content": user_prompt
+        }]
+        tools = [{
+            "type": "function",
+            "function": {
+                "name": response_model.model_json_schema()['title'],  # 工具名字
+                "description": response_model.model_json_schema()['description'],  # 工具名字
+                "properties": response_model.model_json_schema()['properties'],  # 参数说明
+                "required": response_model.model_json_schema()['required']  # 必须要传的参数
+            }
+        }]
+        response = client.chat.completions.create(
+            model=self.model_name,
+            messages=message,
+            tools=tools,
+            tool_choice="auto"
+        )
+        try:
+            arguments = response.choices[0].message.tool_calls[0].function.arguments
+            return response_model.model_validate_json(arguments)
+        except:
+            print('ERROR', response.choices[0].message)
+            return None
+
+
+class Translation(BaseModel):
+    """
+    根据用户提供的信息查询文本翻译，需要判断出原始语种和待翻译的文本
+    参数均为中文
+    """
+    source_lang: str = Field(description="原始语种")
+    target_lang: str = Field(description="目标语种")
+    text: str = Field(description="待翻译的文本")
+
+
+result = ExtractionAgent(model_name="qwen-plus").call('翻译 hello 为阿拉伯语', Translation)
+print(result)
