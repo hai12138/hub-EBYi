@@ -1,0 +1,500 @@
+app:
+  description: 构建一个路由系统，根据用户问题类型（普通闲聊、机器学习、大模型），分流到不同的处理路径。
+  icon: 🤖
+  icon_background: '#FFEAD5'
+  icon_type: emoji
+  mode: workflow
+  name: RAG问答过程
+  use_icon_as_answer_icon: false
+dependencies:
+- current_identifier: null
+  type: marketplace
+  value:
+    marketplace_plugin_unique_identifier: langgenius/ollama:0.1.2@fcf107badccaf57948634ad2c557d393c3894138d83f4eb3f959e9a1d3a86512
+    version: null
+kind: app
+version: 0.6.0
+workflow:
+  conversation_variables: []
+  environment_variables: []
+  features:
+    file_upload:
+      allowed_file_extensions:
+      - .JPG
+      - .JPEG
+      - .PNG
+      - .GIF
+      - .WEBP
+      - .SVG
+      allowed_file_types:
+      - image
+      allowed_file_upload_methods:
+      - local_file
+      - remote_url
+      enabled: false
+      fileUploadConfig:
+        attachment_image_file_size_limit: 2
+        audio_file_size_limit: 50
+        batch_count_limit: 5
+        file_size_limit: 15
+        file_upload_limit: 20
+        image_file_batch_limit: 10
+        image_file_size_limit: 10
+        single_chunk_attachment_limit: 10
+        video_file_size_limit: 100
+        workflow_file_upload_limit: 10
+      image:
+        enabled: false
+        number_limits: 3
+        transfer_methods:
+        - local_file
+        - remote_url
+      number_limits: 3
+    opening_statement: ''
+    retriever_resource:
+      enabled: true
+    sensitive_word_avoidance:
+      enabled: false
+    speech_to_text:
+      enabled: false
+    suggested_questions: []
+    suggested_questions_after_answer:
+      enabled: false
+    text_to_speech:
+      enabled: false
+      language: ''
+      voice: ''
+  graph:
+    edges:
+    - data:
+        isInLoop: false
+        sourceType: knowledge-retrieval
+        targetType: llm
+      id: 1774505054801-source-17745077243460-target
+      selected: false
+      source: '1774505054801'
+      sourceHandle: source
+      target: '17745077243460'
+      targetHandle: target
+      type: custom
+      zIndex: 0
+    - data:
+        isInLoop: false
+        sourceType: knowledge-retrieval
+        targetType: llm
+      id: 17745050636170-source-17745051529460-target
+      source: '17745050636170'
+      sourceHandle: source
+      target: '17745051529460'
+      targetHandle: target
+      type: custom
+      zIndex: 0
+    - data:
+        isInLoop: false
+        sourceType: llm
+        targetType: end
+      id: 17745077243460-source-1774506119003-target
+      source: '17745077243460'
+      sourceHandle: source
+      target: '1774506119003'
+      targetHandle: target
+      type: custom
+      zIndex: 0
+    - data:
+        isInLoop: false
+        sourceType: llm
+        targetType: end
+      id: 17745051529460-source-1774506119003-target
+      source: '17745051529460'
+      sourceHandle: source
+      target: '1774506119003'
+      targetHandle: target
+      type: custom
+      zIndex: 0
+    - data:
+        isInLoop: false
+        sourceType: llm
+        targetType: end
+      id: 1774505013478-source-1774506119003-target
+      selected: false
+      source: '1774505013478'
+      sourceHandle: source
+      target: '1774506119003'
+      targetHandle: target
+      type: custom
+      zIndex: 0
+    - data:
+        isInLoop: false
+        sourceType: start
+        targetType: llm
+      id: 1774509109247-source-1774510905552-target
+      source: '1774509109247'
+      sourceHandle: source
+      target: '1774510905552'
+      targetHandle: target
+      type: custom
+      zIndex: 0
+    - data:
+        isInLoop: false
+        sourceType: llm
+        targetType: question-classifier
+      id: 1774510905552-source-1774510671923-target
+      source: '1774510905552'
+      sourceHandle: source
+      target: '1774510671923'
+      targetHandle: target
+      type: custom
+      zIndex: 0
+    - data:
+        isInLoop: false
+        sourceType: question-classifier
+        targetType: knowledge-retrieval
+      id: 1774510671923-1-1774505054801-target
+      source: '1774510671923'
+      sourceHandle: '1'
+      target: '1774505054801'
+      targetHandle: target
+      type: custom
+      zIndex: 0
+    - data:
+        isInLoop: false
+        sourceType: question-classifier
+        targetType: knowledge-retrieval
+      id: 1774510671923-2-17745050636170-target
+      source: '1774510671923'
+      sourceHandle: '2'
+      target: '17745050636170'
+      targetHandle: target
+      type: custom
+      zIndex: 0
+    - data:
+        isInLoop: false
+        sourceType: question-classifier
+        targetType: llm
+      id: 1774510671923-1774511230699-1774505013478-target
+      source: '1774510671923'
+      sourceHandle: '1774511230699'
+      target: '1774505013478'
+      targetHandle: target
+      type: custom
+      zIndex: 0
+    nodes:
+    - data:
+        context:
+          enabled: false
+          variable_selector: []
+        model:
+          completion_params:
+            temperature: 0.7
+          mode: chat
+          name: qwen3:8b
+          provider: langgenius/ollama/ollama
+        prompt_template:
+        - id: ab093579-1fbc-404a-89ca-669fc6f1e045
+          role: system
+          text: "你是一位友好的助手。请回答用户的问题：\n\n用户问题：{{#1774509109247.query#}}\n\n1.如果不确定答案，请诚实告知。\n\
+            2. 回答要专业、准确\n请严格按照以下格式输出：\n{\n  \"answer\": \"...\",\n  \"explanation\"\
+            : \"...\"\n}"
+        selected: false
+        structured_output_enabled: true
+        title: other
+        type: llm
+        vision:
+          enabled: false
+      height: 86
+      id: '1774505013478'
+      position:
+        x: 863.1023254417123
+        y: 87.06337376995879
+      positionAbsolute:
+        x: 863.1023254417123
+        y: 87.06337376995879
+      selected: false
+      sourcePosition: right
+      targetPosition: left
+      type: custom
+      width: 241
+    - data:
+        dataset_ids:
+        - +ZTUcioFNT1XzFTVEBMyVp+2k6L+ILBRLVnjdLq99uzujxgYQ6+fMDGZl3x+exb/
+        metadata_filtering_mode: automatic
+        metadata_model_config:
+          completion_params:
+            temperature: 0.7
+          mode: chat
+          name: qwen3:8b
+          provider: langgenius/ollama/ollama
+        multiple_retrieval_config:
+          reranking_enable: false
+          reranking_mode: reranking_model
+          top_k: 4
+        query_attachment_selector: []
+        query_variable_selector:
+        - '1774509109247'
+        - query
+        retrieval_mode: multiple
+        selected: false
+        title: 知识检索
+        type: knowledge-retrieval
+      height: 88
+      id: '1774505054801'
+      position:
+        x: 863.1023254417123
+        y: -301.3101164859956
+      positionAbsolute:
+        x: 863.1023254417123
+        y: -301.3101164859956
+      selected: false
+      sourcePosition: right
+      targetPosition: left
+      type: custom
+      width: 241
+    - data:
+        dataset_ids:
+        - Rr0mHa4AOsCRqrcFncWbIU5W/bl4Y7VDQiinGiGMBsFS2l78+rEakL/P2tInLbUz
+        multiple_retrieval_config:
+          reranking_enable: false
+          reranking_mode: reranking_model
+          top_k: 4
+        query_attachment_selector: []
+        query_variable_selector:
+        - '1774509109247'
+        - query
+        retrieval_mode: multiple
+        selected: false
+        title: 大模型知识检索
+        type: knowledge-retrieval
+      height: 88
+      id: '17745050636170'
+      position:
+        x: 847.2852942615366
+        y: -83.28608742581986
+      positionAbsolute:
+        x: 847.2852942615366
+        y: -83.28608742581986
+      selected: false
+      sourcePosition: right
+      targetPosition: left
+      type: custom
+      width: 241
+    - data:
+        context:
+          enabled: false
+          variable_selector: []
+        model:
+          completion_params:
+            temperature: 0.7
+          mode: chat
+          name: qwen3:8b
+          provider: langgenius/ollama/ollama
+        prompt_template:
+        - id: ab093579-1fbc-404a-89ca-669fc6f1e045
+          role: system
+          text: "你是一位大型语言模型专家。请基于以下知识回答用户问题：\n\n知识内容：\n用户问题：{{#1774509109247.query#}}\n\
+            要求：\n1. 基于提供的知识回答\n2. 如果知识库不存在，请使用大模型能力回答\n3. 如果知识中没有相关信息，请说明\n4. 回答要专业、准确\n\
+            请严格按照以下格式输出：\n{\n  \"answer\": \"...\",\n  \"explanation\": \"...\"\n}"
+        selected: false
+        structured_output_enabled: false
+        title: 'LLM '
+        type: llm
+        vision:
+          enabled: false
+      height: 86
+      id: '17745051529460'
+      position:
+        x: 1364.9088689010055
+        y: -95.28608771427221
+      positionAbsolute:
+        x: 1364.9088689010055
+        y: -95.28608771427221
+      selected: false
+      sourcePosition: right
+      targetPosition: left
+      type: custom
+      width: 241
+    - data:
+        outputs:
+        - value_selector:
+          - '17745077243460'
+          - text
+          value_type: string
+          variable: answerML
+        - value_selector:
+          - '17745051529460'
+          - text
+          value_type: string
+          variable: answerLLM
+        - value_selector:
+          - '1774505013478'
+          - text
+          value_type: string
+          variable: answerother
+        selected: false
+        title: 输出
+        type: end
+      height: 140
+      id: '1774506119003'
+      position:
+        x: 1990.3786699761758
+        y: -113.6228664585296
+      positionAbsolute:
+        x: 1990.3786699761758
+        y: -113.6228664585296
+      selected: false
+      sourcePosition: right
+      targetPosition: left
+      type: custom
+      width: 241
+    - data:
+        context:
+          enabled: false
+          variable_selector: []
+        model:
+          completion_params:
+            temperature: 0.7
+          mode: chat
+          name: qwen3:8b
+          provider: langgenius/ollama/ollama
+        prompt_config:
+          jinja2_variables: []
+        prompt_template:
+        - edition_type: basic
+          id: ab093579-1fbc-404a-89ca-669fc6f1e045
+          role: system
+          text: "您是一位机器学习专家。请基于以下知识回答用户问题：\n\n用户问题：{{#1774509109247.query#}}\n\n要求：\n\
+            1. 仅基于提供的知识回答，不要编造信息\n2. 在不知情情况下，请使用大模型去回答\n3. 如果知识中没有相关信息，请坦白告知\n4. 可以引用原文相关关键词\n\
+            5. 回答要专业、准确\n请严格按照以下格式输出：\n{\n  \"answer\": \"...\",\n  \"explanation\"\
+            : \"...\"\n}"
+        selected: false
+        structured_output_enabled: true
+        title: ML
+        type: llm
+        vision:
+          enabled: false
+      height: 86
+      id: '17745077243460'
+      position:
+        x: 1397.3079123167433
+        y: -279.2483653978139
+      positionAbsolute:
+        x: 1397.3079123167433
+        y: -279.2483653978139
+      selected: false
+      sourcePosition: right
+      targetPosition: left
+      type: custom
+      width: 241
+    - data:
+        selected: false
+        title: 用户输入
+        type: start
+        variables:
+        - default: ''
+          hint: ''
+          label: query
+          options: []
+          placeholder: ''
+          required: true
+          type: text-input
+          variable: query
+      height: 107
+      id: '1774509109247'
+      position:
+        x: -377.8038727487146
+        y: -235.44064776342083
+      positionAbsolute:
+        x: -377.8038727487146
+        y: -235.44064776342083
+      selected: false
+      sourcePosition: right
+      targetPosition: left
+      type: custom
+      width: 242
+    - data:
+        classes:
+        - id: '1'
+          name: 'ML_INTENT: 当问题涉及机器学习算法、模型训练、数据预处理等机器学习内容时。'
+        - id: '2'
+          name: 'LLM_INTENT: 当问题涉及大语言模型、Transformer架构、Prompt工程、生成式AI等内容时。'
+        - id: '1774511230699'
+          name: 'OTHER_INTENT: 当问题属于闲聊、提问或与上述两个领域无关时。'
+        instruction: ''
+        instructions: ''
+        model:
+          completion_params:
+            temperature: 0.7
+          mode: chat
+          name: qwen3:8b
+          provider: langgenius/ollama/ollama
+        query_variable_selector:
+        - '1774510905552'
+        - text
+        selected: false
+        title: 问题分类器
+        type: question-classifier
+        vision:
+          enabled: false
+      height: 206
+      id: '1774510671923'
+      position:
+        x: 446.9866485136159
+        y: -221.0381875393108
+      positionAbsolute:
+        x: 446.9866485136159
+        y: -221.0381875393108
+      selected: false
+      sourcePosition: right
+      targetPosition: left
+      type: custom
+      width: 241
+    - data:
+        context:
+          enabled: false
+          variable_selector: []
+        model:
+          completion_params:
+            temperature: 0.7
+          mode: chat
+          name: qwen3:8b
+          provider: langgenius/ollama/ollama
+        prompt_template:
+        - id: dd2d1ad5-ac0f-425e-9247-1891eb3a01db
+          role: system
+          text: '# 任务
+
+            请分析用户输入的问题，判断其意图类别。请仅输出以下三个标签之一，不要输出其他内容：
+
+            1、ML_INTENT: 当问题涉及机器学习算法、模型训练、数据预处理等机器学习内容时。
+
+            2、LLM_INTENT: 当问题涉及大语言模型、Transformer架构、Prompt工程、生成式AI等内容时。
+
+            3、OTHER_INTENT: 当问题属于闲聊、提问或与上述两个领域无关时。
+
+
+            # 用户问题
+
+            {{#1774509109247.query#}}'
+        selected: false
+        structured_output_enabled: false
+        title: 意图识别
+        type: llm
+        vision:
+          enabled: false
+      height: 86
+      id: '1774510905552'
+      position:
+        x: -31.994739215997242
+        y: -214.44064776342083
+      positionAbsolute:
+        x: -31.994739215997242
+        y: -214.44064776342083
+      selected: true
+      sourcePosition: right
+      targetPosition: left
+      type: custom
+      width: 241
+    viewport:
+      x: 380.1266036509926
+      y: 586.0299743888439
+      zoom: 0.3789291197669997
+  rag_pipeline_variables: []
