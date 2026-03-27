@@ -1,0 +1,141 @@
+from pydantic import BaseModel, Field
+from typing import List, Optional
+from typing_extensions import Literal
+import openai
+
+# 初始化 OpenAI 兼容客户端（对接阿里云通义千问）
+client = openai.OpenAI(
+    api_key="sk-6df0270104f64e359c37561bc3980c3c",  # 必须替换为有效Key
+    base_url="https://dashscope.aliyuncs.com/compatible-mode/v1",
+)
+
+# ===================== 1. 定义翻译信息抽取模型（Pydantic） =====================
+# 定义支持的语种（可根据需要扩展）
+SUPPORT_LANGUAGES = Literal["中文", "英文", "日语", "法语", "德语", "西班牙语"]
+
+
+class TranslateInfo(BaseModel):
+    """文本翻译信息抽取：识别原始语种、目标语种、待翻译文本"""
+    source_language: SUPPORT_LANGUAGES = Field(
+        description="待翻译文本的原始语种，比如'英文'、'中文'",
+        examples=["英文", "中文"]
+    )
+    target_language: SUPPORT_LANGUAGES = Field(
+        description="要翻译成的目标语种，比如'中文'、'英文'",
+        examples=["中文", "英文"]
+    )
+    text_to_translate: str = Field(
+        description="需要被翻译的原始文本内容",
+        examples=["good！", "我今天很开心"]
+    )
+
+
+# ===================== 2. 定义翻译智能体核心类 =====================
+class TranslateAgent:
+    def __init__(self, model_name: str = "qwen-plus"):
+        self.model_name = model_name  # 指定使用的大模型
+
+    def extract_translate_info(self, user_prompt: str) -> Optional[TranslateInfo]:
+        """
+        第一步：从用户输入中抽取翻译关键信息（原始语种、目标语种、待翻译文本）
+        :param user_prompt: 用户的翻译指令（比如"帮我将good！翻译为中文"）
+        :return: 抽取后的结构化信息（TranslateInfo实例），失败返回None
+        """
+        # 构建Function Call的Tools描述（和参考代码逻辑一致）
+        tools = [
+            {
+                "type": "function",
+                "function": {
+                    "name": TranslateInfo.model_json_schema()['title'],
+                    "description": TranslateInfo.model_json_schema()['description'],
+                    "parameters": {
+                        "type": "object",
+                        "properties": TranslateInfo.model_json_schema()['properties'],
+                        "required": TranslateInfo.model_json_schema()['required'],
+                    },
+                }
+            }
+        ]
+
+        # 调用大模型抽取信息
+        try:
+            response = client.chat.completions.create(
+                model=self.model_name,
+                messages=[{"role": "user", "content": user_prompt}],
+                tools=tools,
+                tool_choice="auto",  # 让模型自动调用定义的工具
+            )
+            # 提取大模型生成的结构化参数
+            arguments = response.choices[0].message.tool_calls[0].function.arguments
+            # 校验并转换为TranslateInfo实例
+            return TranslateInfo.model_validate_json(arguments)
+        except Exception as e:
+            print(f"抽取翻译信息失败：{e}")
+            return None
+
+    def translate(self, translate_info: TranslateInfo) -> Optional[str]:
+        """
+        第二步：根据抽取的信息完成翻译
+        :param translate_info: 结构化的翻译信息
+        :return: 翻译结果，失败返回None
+        """
+        # 构建翻译提示词
+        translate_prompt = f"""
+        请你作为专业翻译助手，完成以下翻译任务：
+        - 原始语种：{translate_info.source_language}
+        - 目标语种：{translate_info.target_language}
+        - 待翻译文本：{translate_info.text_to_translate}
+        要求：翻译结果准确、简洁，仅返回翻译后的文本，不要额外解释。
+        """
+        try:
+            # 调用大模型完成翻译
+            response = client.chat.completions.create(
+                model=self.model_name,
+                messages=[{"role": "user", "content": translate_prompt}],
+                temperature=0.1,  # 低温度保证翻译准确性
+            )
+            # 提取翻译结果
+            return response.choices[0].message.content.strip()
+        except Exception as e:
+            print(f"翻译失败：{e}")
+            return None
+
+    def run(self, user_prompt: str) -> Optional[str]:
+        """
+        智能体主流程：先抽取信息 → 再执行翻译
+        :param user_prompt: 用户的翻译指令
+        :return: 最终翻译结果
+        """
+        # 1. 抽取翻译信息
+        translate_info = self.extract_translate_info(user_prompt)
+        if not translate_info:
+            print("无法识别你的翻译需求，请检查输入格式（比如：帮我将xxx翻译为xxx）")
+            return None
+        print(f"✅ 抽取到翻译信息：")
+        print(f"   原始语种：{translate_info.source_language}")
+        print(f"   目标语种：{translate_info.target_language}")
+        print(f"   待翻译文本：{translate_info.text_to_translate}")
+
+        # 2. 执行翻译
+        result = self.translate(translate_info)
+        if result:
+            print(f"✅ 翻译结果：{result}")
+        return result
+
+
+# ===================== 3. 测试翻译智能体 =====================
+if __name__ == "__main__":
+    # 创建翻译智能体实例
+    translator = TranslateAgent(model_name="qwen-plus")
+
+    # 测试案例1：英文→中文
+    print("===== 测试案例1 =====")
+    translator.run("帮我将good！翻译为中文")
+
+    # 测试案例2：中文→英文
+    print("\n===== 测试案例2 =====")
+    translator.run("请把'我今天很开心'翻译成英文")
+
+    # 测试案例3：中文→日语
+    print("\n===== 测试案例3 =====")
+    translator.run("帮我将'早上好'翻译成日语")
