@@ -1,0 +1,157 @@
+name: 体脂健康建议
+description: 根据用户性别、身高、体重和年龄，计算体脂率并提供个性化健康建议。
+mode: workflow
+version: 2
+nodes:
+  - id: '1750247789086'
+    type: start
+    position:
+      x: 0
+      y: 0
+    variables:
+      - label: 性别
+        max_length: 48
+        options: ["男", "女"]
+        required: true
+        type: select
+        variable: sex
+      - label: 身高（cm）
+        max_length: 48
+        options: []
+        required: true
+        type: number
+        variable: height
+      - label: 体重（kg）
+        max_length: 48
+        options: []
+        required: true
+        type: number
+        variable: weight
+      - label: 年龄
+        max_length: 3
+        options: []
+        required: true
+        type: number
+        variable: age
+    data:
+      title: 开始
+  - id: '1750247864708'
+    type: code
+    position:
+      x: 300
+      y: 0
+    variables:
+      - value_selector: ['1750247789086', 'sex']
+        variable: sex
+      - value_selector: ['1750247789086', 'height']
+        variable: height
+      - value_selector: ['1750247789086', 'weight']
+        variable: weight
+      - value_selector: ['1750247789086', 'age']
+        variable: age
+    data:
+      title: 计算体脂率
+      code_language: python3
+      code: |
+        def main(sex: str, height: int, weight: int, age: int) -> dict:
+            # 当前使用简化公式（未使用年龄），但保留参数以便未来升级
+            bmi = weight / ((height / 100) ** 2)
+            if sex.lower() == '男':
+                body_fat_percentage = 1.2 * bmi + 0.23 * 0.45 - 16.2
+            elif sex.lower() == '女':
+                body_fat_percentage = 1.2 * bmi + 0.23 * 0.45 - 5.4
+            else:
+                body_fat_percentage = 1.2 * bmi - 5.4  # 默认按女性处理
+
+            # 限制体脂率在合理范围内
+            body_fat_percentage = max(0, min(100, body_fat_percentage))
+            return {"body_fat_percentage": round(body_fat_percentage, 2)}
+  - id: '1750248183676'
+    type: llm
+    position:
+      x: 600
+      y: 0
+    variables:
+      - value_selector: ['1750247789086', 'sex']
+        variable: sex
+      - value_selector: ['1750247789086', 'height']
+        variable: height
+      - value_selector: ['1750247789086', 'weight']
+        variable: weight
+      - value_selector: ['1750247789086', 'age']
+        variable: age
+      - value_selector: ['1750247864708', 'body_fat_percentage']
+        variable: body_fat_percentage
+    data:
+      title: 生成健康建议
+      model:
+        provider: openai
+        name: gpt-4o-mini
+        mode: chat
+        parameters:
+          temperature: 0.7
+      prompt: |
+        你是一位专业的健康管理师。请根据以下用户信息，提供科学、实用、鼓励性的体脂健康建议。
+
+        性别：{{#1750247789086.sex#}} 
+        身高：{{#1750247789086.height#}} cm
+        体重：{{#1750247789086.weight#}} kg
+        年龄：{{#1750247789086.age#}} 岁
+        体脂比：{{#1750247864708.body_fat_percentage#}}%
+
+        请说明该体脂率是否在正常范围（参考标准需结合性别和年龄），并给出饮食、运动、生活习惯等方面的建议。语言亲切、积极，避免制造焦虑。
+  - id: '1750248311782'
+    type: template_transform
+    position:
+      x: 900
+      y: 0
+    variables:
+      - value_selector: ['1750247789086', 'sex']
+        variable: sex
+      - value_selector: ['1750247789086', 'height']
+        variable: height
+      - value_selector: ['1750247789086', 'weight']
+        variable: weight
+      - value_selector: ['1750247789086', 'age']
+        variable: age
+      - value_selector: ['1750247864708', 'body_fat_percentage']
+        variable: body_fat_percentage
+      - value_selector: ['1750248183676', 'text']
+        variable: text
+    data:
+      title: 格式化输出
+      template: |
+        ## 用户基本信息
+        - 性别：{{ sex }}
+        - 年龄：{{ age }} 岁
+        - 身高：{{ height }} cm
+        - 体重：{{ weight }} kg
+
+        ## 体脂率
+        {{ body_fat_percentage }}%
+
+        ## 健康建议
+        {{ text }}
+  - id: '1750248352234'
+    type: end
+    position:
+      x: 1200
+      y: 0
+    variables:
+      - value_selector: ['1750248311782', 'output']
+        variable: output
+    data:
+      title: 结束
+edges:
+  - id: e1
+    source: '1750247789086'
+    target: '1750247864708'
+  - id: e2
+    source: '1750247864708'
+    target: '1750248183676'
+  - id: e3
+    source: '1750248183676'
+    target: '1750248311782'
+  - id: e4
+    source: '1750248311782'
+    target: '1750248352234'

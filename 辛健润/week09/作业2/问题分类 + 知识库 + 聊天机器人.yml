@@ -1,0 +1,462 @@
+app:
+  description: ''
+  icon: face_with_monocle
+  icon_background: '#FFE4E8'
+  icon_type: emoji
+  mode: advanced-chat
+  name: 问题分类 + 知识库 + 聊天机器人
+  use_icon_as_answer_icon: false
+dependencies:
+- current_identifier: null
+  type: marketplace
+  value:
+    marketplace_plugin_unique_identifier: langgenius/tongyi:0.1.33@608ec1e7d07dd52e582cff58561a8c75c989951186ffc59452dfffe3d8051230
+    version: null
+- current_identifier: null
+  type: marketplace
+  value:
+    marketplace_plugin_unique_identifier: langgenius/openai:0.3.2@d70fb969e7c79719bee96573a8f4c9dc4ffd984f4171b9184cc3869c886af45d
+    version: null
+kind: app
+version: 0.6.0
+workflow:
+  conversation_variables: []
+  environment_variables: []
+  features:
+    file_upload:
+      allowed_file_extensions:
+      - .JPG
+      - .JPEG
+      - .PNG
+      - .GIF
+      - .WEBP
+      - .SVG
+      allowed_file_types:
+      - image
+      allowed_file_upload_methods:
+      - local_file
+      - remote_url
+      enabled: false
+      fileUploadConfig:
+        attachment_image_file_size_limit: 2
+        audio_file_size_limit: 50
+        batch_count_limit: 5
+        file_size_limit: 15
+        file_upload_limit: 20
+        image_file_batch_limit: 10
+        image_file_size_limit: 10
+        single_chunk_attachment_limit: 10
+        video_file_size_limit: 100
+        workflow_file_upload_limit: 10
+      image:
+        enabled: false
+        number_limits: 3
+        transfer_methods:
+        - local_file
+        - remote_url
+      number_limits: 3
+    opening_statement: ''
+    retriever_resource:
+      enabled: false
+    sensitive_word_avoidance:
+      enabled: false
+    speech_to_text:
+      enabled: false
+    suggested_questions: []
+    suggested_questions_after_answer:
+      enabled: false
+    text_to_speech:
+      enabled: false
+      language: ''
+      voice: ''
+  graph:
+    edges:
+    - data:
+        sourceType: start
+        targetType: question-classifier
+      id: 1711528708197-1711528709608
+      source: '1711528708197'
+      sourceHandle: source
+      target: '1711528709608'
+      targetHandle: target
+      type: custom
+    - data:
+        sourceType: question-classifier
+        targetType: knowledge-retrieval
+      id: 1711528709608-1711528768556
+      source: '1711528709608'
+      sourceHandle: '1711528736036'
+      target: '1711528768556'
+      targetHandle: target
+      type: custom
+    - data:
+        sourceType: question-classifier
+        targetType: knowledge-retrieval
+      id: 1711528709608-1711528770201
+      source: '1711528709608'
+      sourceHandle: '1711528736549'
+      target: '1711528770201'
+      targetHandle: target
+      type: custom
+    - data:
+        sourceType: knowledge-retrieval
+        targetType: llm
+      id: 1711528768556-1711528802931
+      source: '1711528768556'
+      sourceHandle: source
+      target: '1711528802931'
+      targetHandle: target
+      type: custom
+    - data:
+        sourceType: knowledge-retrieval
+        targetType: llm
+      id: 1711528770201-1711528815414
+      source: '1711528770201'
+      sourceHandle: source
+      target: '1711528815414'
+      targetHandle: target
+      type: custom
+    - data:
+        sourceType: llm
+        targetType: answer
+      id: 1711528802931-1711528833796
+      source: '1711528802931'
+      sourceHandle: source
+      target: '1711528833796'
+      targetHandle: target
+      type: custom
+    - data:
+        sourceType: llm
+        targetType: answer
+      id: 1711528815414-1711528835179
+      source: '1711528815414'
+      sourceHandle: source
+      target: '1711528835179'
+      targetHandle: target
+      type: custom
+    - data:
+        sourceType: question-classifier
+        targetType: answer
+      id: 1711528709608-1711528775142
+      source: '1711528709608'
+      sourceHandle: '1711528737066'
+      target: '1711528775142'
+      targetHandle: target
+      type: custom
+    nodes:
+    - data:
+        desc: ''
+        selected: false
+        title: 开始
+        type: start
+        variables: []
+      height: 73
+      id: '1711528708197'
+      position:
+        x: 79.5
+        y: 714.5
+      positionAbsolute:
+        x: 79.5
+        y: 714.5
+      selected: false
+      sourcePosition: right
+      targetPosition: left
+      type: custom
+      width: 242
+    - data:
+        classes:
+        - id: '1711528736036'
+          name: 售后问题
+        - id: '1711528736549'
+          name: 产品使用问题
+        - id: '1711528737066'
+          name: 其他问题
+        desc: 我们可以设定用户问题的分类条件，然后大语言模型就能根据这些分类描述来决定对话的发展方向。
+        instructions: ''
+        model:
+          completion_params:
+            frequency_penalty: 0
+            max_tokens: 512
+            presence_penalty: 0
+            temperature: 0.7
+            top_p: 1
+          mode: chat
+          name: qwen3.5-plus
+          provider: langgenius/tongyi/tongyi
+        query_variable_selector:
+        - '1711528708197'
+        - sys.query
+        selected: false
+        title: Question Classifier
+        topics: []
+        type: question-classifier
+      height: 268
+      id: '1711528709608'
+      position:
+        x: 362.5
+        y: 714.5
+      positionAbsolute:
+        x: 362.5
+        y: 714.5
+      selected: false
+      sourcePosition: right
+      targetPosition: left
+      type: custom
+      width: 242
+    - data:
+        dataset_ids:
+        - LGRM1BiEUPUcIjIqiuM3mnYrNAGu1D5cSjT5COE2odRsj6tGipBp3KZWMiTiW58Z
+        - O0Y0VUdPDwRLZ2bqptXHIXb+buoDBYX36K06zij1tDjHmsJrLvrO06ornBwqc8TA
+        desc: 获取售后 SOP 的相关知识
+        query_variable_selector:
+        - '1711528708197'
+        - sys.query
+        retrieval_mode: single
+        selected: false
+        single_retrieval_config:
+          model:
+            completion_params: {}
+            mode: chat
+            name: gpt-3.5-turbo
+            provider: openai
+        title: 知识检索
+        type: knowledge-retrieval
+      dragging: false
+      height: 80
+      id: '1711528768556'
+      position:
+        x: 645.5
+        y: 714.5
+      positionAbsolute:
+        x: 645.5
+        y: 714.5
+      selected: false
+      sourcePosition: right
+      targetPosition: left
+      type: custom
+      width: 242
+    - data:
+        dataset_ids:
+        - LGRM1BiEUPUcIjIqiuM3mnYrNAGu1D5cSjT5COE2odRsj6tGipBp3KZWMiTiW58Z
+        - 43u4Mt5NQj7y2VDnHg1hJ8mw/2rWfkXZQV1h7qjTe1oR9n1k/iogWeX0KtqxTxni
+        desc: 检索产品相关的知识
+        query_variable_selector:
+        - '1711528708197'
+        - sys.query
+        retrieval_mode: single
+        selected: false
+        single_retrieval_config:
+          model:
+            completion_params: {}
+            mode: chat
+            name: gpt-3.5-turbo
+            provider: openai
+        title: 知识检索
+        type: knowledge-retrieval
+      dragging: false
+      height: 80
+      id: '1711528770201'
+      position:
+        x: 645.5
+        y: 868.6428571428572
+      positionAbsolute:
+        x: 645.5
+        y: 868.6428571428572
+      selected: false
+      sourcePosition: right
+      targetPosition: left
+      type: custom
+      width: 242
+    - data:
+        answer: 抱歉，这些问题我无法回答。
+        desc: ''
+        selected: false
+        title: 直接回复
+        type: answer
+        variables: []
+      height: 100
+      id: '1711528775142'
+      position:
+        x: 645.5
+        y: 1044.2142857142856
+      positionAbsolute:
+        x: 645.5
+        y: 1044.2142857142856
+      selected: false
+      sourcePosition: right
+      targetPosition: left
+      type: custom
+      width: 242
+    - data:
+        context:
+          enabled: true
+          variable_selector:
+          - '1711528768556'
+          - result
+        desc: ''
+        memory:
+          role_prefix:
+            assistant: ''
+            user: ''
+          window:
+            enabled: false
+            size: 50
+        model:
+          completion_params:
+            max_tokens: 512
+            temperature: 0.7
+          mode: chat
+          name: qwen3-8b
+          provider: langgenius/tongyi/tongyi
+        prompt_template:
+        - id: d204dd4d-0282-4a40-ab8a-af51a51f7ddd
+          role: system
+          text: '使用以下上下文作为你所学习的知识，放在<context></context> XML标签内。
+
+            <context>
+
+            {{#context#}}
+
+            </context>
+
+            当回答用户时：
+
+            如果你不知道，就说你不知道。如果你不确定时不知道，寻求澄清。
+
+            避免提及你从上下文中获取的信息。
+
+            并根据用户问题的语言进行回答。'
+        selected: true
+        title: LLM
+        type: llm
+        variables: []
+        vision:
+          enabled: false
+      dragging: false
+      height: 88
+      id: '1711528802931'
+      position:
+        x: 928.5
+        y: 714.5
+      positionAbsolute:
+        x: 928.5
+        y: 714.5
+      selected: true
+      sourcePosition: right
+      targetPosition: left
+      type: custom
+      width: 242
+    - data:
+        context:
+          enabled: true
+          variable_selector:
+          - '1711528770201'
+          - result
+        desc: ''
+        memory:
+          role_prefix:
+            assistant: ''
+            user: ''
+          window:
+            enabled: false
+            size: 50
+        model:
+          completion_params:
+            max_tokens: 512
+            temperature: 0.7
+          mode: chat
+          name: qwen3-8b
+          provider: langgenius/tongyi/tongyi
+        prompt_template:
+        - id: 24f59ac2-70b8-42a3-a873-903b131c2de1
+          role: system
+          text: '使用以下上下文作为你所学习的知识，放在<context></context> XML标签内。
+
+            <context>
+
+            {{#context#}}
+
+            </context>
+
+            当回答用户时：
+
+            如果你不知道，就说你不知道。如果你不确定时不知道，寻求澄清。
+
+            避免提及你从上下文中获取的信息。
+
+            并根据用户问题的语言进行回答。'
+        selected: false
+        title: 'LLM '
+        type: llm
+        variables: []
+        vision:
+          enabled: false
+      dragging: false
+      height: 88
+      id: '1711528815414'
+      position:
+        x: 928.5
+        y: 868.6428571428572
+      positionAbsolute:
+        x: 928.5
+        y: 868.6428571428572
+      selected: false
+      sourcePosition: right
+      targetPosition: left
+      type: custom
+      width: 242
+    - data:
+        answer: '{{#1711528802931.text#}}'
+        desc: ''
+        selected: false
+        title: 直接回复
+        type: answer
+        variables:
+        - value_selector:
+          - '1711528802931'
+          - text
+          variable: text
+      dragging: false
+      height: 103
+      id: '1711528833796'
+      position:
+        x: 1211.5
+        y: 714.5
+      positionAbsolute:
+        x: 1211.5
+        y: 714.5
+      selected: false
+      sourcePosition: right
+      targetPosition: left
+      type: custom
+      width: 242
+    - data:
+        answer: '{{#1711528815414.text#}}'
+        desc: ''
+        selected: false
+        title: 直接回复
+        type: answer
+        variables:
+        - value_selector:
+          - '1711528815414'
+          - text
+          variable: text
+      dragging: false
+      height: 103
+      id: '1711528835179'
+      position:
+        x: 1211.5
+        y: 873.5398606081052
+      positionAbsolute:
+        x: 1211.5
+        y: 873.5398606081052
+      selected: false
+      sourcePosition: right
+      targetPosition: left
+      type: custom
+      width: 242
+    viewport:
+      x: -83.4288702581656
+      y: -515.8133088127456
+      zoom: 1.0620956099800356
+  rag_pipeline_variables: []

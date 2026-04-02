@@ -1,0 +1,506 @@
+app:
+  description: ''
+  icon: 🤖
+  icon_background: '#FFEAD5'
+  mode: advanced-chat
+  name: 意图识别  + rag问答
+  use_icon_as_answer_icon: false
+dependencies:
+- current_identifier: null
+  type: marketplace
+  value:
+    marketplace_plugin_unique_identifier: langgenius/ollama:0.1.2@fcf107badccaf57948634ad2c557d393c3894138d83f4eb3f959e9a1d3a86512
+    version: null
+kind: app
+version: 0.5.0
+workflow:
+  conversation_variables: []
+  environment_variables: []
+  features:
+    file_upload:
+      allowed_file_extensions:
+      - .JPG
+      - .JPEG
+      - .PNG
+      - .GIF
+      - .WEBP
+      - .SVG
+      allowed_file_types:
+      - image
+      allowed_file_upload_methods:
+      - local_file
+      - remote_url
+      enabled: false
+      fileUploadConfig:
+        audio_file_size_limit: 50
+        batch_count_limit: 5
+        file_size_limit: 15
+        image_file_size_limit: 10
+        video_file_size_limit: 100
+        workflow_file_upload_limit: 10
+      image:
+        enabled: false
+        number_limits: 3
+        transfer_methods:
+        - local_file
+        - remote_url
+      number_limits: 3
+    opening_statement: ''
+    retriever_resource:
+      enabled: false
+    sensitive_word_avoidance:
+      enabled: false
+    speech_to_text:
+      enabled: false
+    suggested_questions: []
+    suggested_questions_after_answer:
+      enabled: false
+    text_to_speech:
+      enabled: false
+      language: ''
+      voice: ''
+  graph:
+    edges:
+    - data:
+        isInIteration: false
+        isInLoop: false
+        sourceType: start
+        targetType: question-classifier
+      id: 1774494909944-source-1774494920448-target
+      source: '1774494909944'
+      sourceHandle: source
+      target: '1774494920448'
+      targetHandle: target
+      type: custom
+      zIndex: 0
+    - data:
+        isInIteration: false
+        isInLoop: false
+        sourceType: question-classifier
+        targetType: llm
+      id: 1774494920448-1-1774495010079-target
+      source: '1774494920448'
+      sourceHandle: '1'
+      target: '1774495010079'
+      targetHandle: target
+      type: custom
+      zIndex: 0
+    - data:
+        isInIteration: false
+        isInLoop: false
+        sourceType: question-classifier
+        targetType: knowledge-retrieval
+      id: 1774494920448-2-1774495086824-target
+      source: '1774494920448'
+      sourceHandle: '2'
+      target: '1774495086824'
+      targetHandle: target
+      type: custom
+      zIndex: 0
+    - data:
+        isInIteration: false
+        isInLoop: false
+        sourceType: knowledge-retrieval
+        targetType: llm
+      id: 1774495086824-source-1774495099150-target
+      source: '1774495086824'
+      sourceHandle: source
+      target: '1774495099150'
+      targetHandle: target
+      type: custom
+      zIndex: 0
+    - data:
+        isInLoop: false
+        sourceType: question-classifier
+        targetType: knowledge-retrieval
+      id: 1774494920448-1774494981229-17744963445370-target
+      source: '1774494920448'
+      sourceHandle: '1774494981229'
+      target: '17744963445370'
+      targetHandle: target
+      type: custom
+      zIndex: 0
+    - data:
+        isInLoop: false
+        sourceType: knowledge-retrieval
+        targetType: llm
+      id: 17744963445370-source-17744963747500-target
+      source: '17744963445370'
+      sourceHandle: source
+      target: '17744963747500'
+      targetHandle: target
+      type: custom
+      zIndex: 0
+    - data:
+        isInIteration: false
+        isInLoop: false
+        sourceType: llm
+        targetType: answer
+      id: 1774495010079-source-1774496602826-target
+      source: '1774495010079'
+      sourceHandle: source
+      target: '1774496602826'
+      targetHandle: target
+      type: custom
+      zIndex: 0
+    - data:
+        isInIteration: false
+        isInLoop: false
+        sourceType: llm
+        targetType: answer
+      id: 1774495099150-source-1774496613340-target
+      source: '1774495099150'
+      sourceHandle: source
+      target: '1774496613340'
+      targetHandle: target
+      type: custom
+      zIndex: 0
+    - data:
+        isInIteration: false
+        isInLoop: false
+        sourceType: llm
+        targetType: answer
+      id: 17744963747500-source-1774496622937-target
+      source: '17744963747500'
+      sourceHandle: source
+      target: '1774496622937'
+      targetHandle: target
+      type: custom
+      zIndex: 0
+    nodes:
+    - data:
+        selected: false
+        title: 用户输入
+        type: start
+        variables: []
+      height: 72
+      id: '1774494909944'
+      position:
+        x: 184
+        y: 161
+      positionAbsolute:
+        x: 184
+        y: 161
+      selected: false
+      sourcePosition: right
+      targetPosition: left
+      type: custom
+      width: 242
+    - data:
+        classes:
+        - id: '1'
+          name: 非机器学习 / 非大模型提问
+        - id: '2'
+          name: 机器学习提问
+        - id: '1774494981229'
+          name: 大模型提问
+        instructions: ''
+        model:
+          completion_params:
+            temperature: 0.7
+          mode: chat
+          name: deepseek-v3.1:671b-cloud
+          provider: langgenius/ollama/ollama
+        query_variable_selector:
+        - '1774494909944'
+        - sys.query
+        selected: false
+        title: 问题分类器
+        type: question-classifier
+        vision:
+          enabled: false
+      height: 207
+      id: '1774494920448'
+      position:
+        x: 190
+        y: 319
+      positionAbsolute:
+        x: 190
+        y: 319
+      selected: false
+      sourcePosition: right
+      targetPosition: left
+      type: custom
+      width: 241
+    - data:
+        context:
+          enabled: false
+          variable_selector: []
+        model:
+          completion_params:
+            temperature: 0.7
+          mode: chat
+          name: deepseek-v3.1:671b-cloud
+          provider: langgenius/ollama/ollama
+        prompt_template:
+        - id: e4561837-6a86-45c6-95ff-facc3a922268
+          role: system
+          text: 你是一个问答专家，请根据用户的提问{{#sys.query#}}}，做出专业的回答
+        selected: false
+        title: LLM
+        type: llm
+        vision:
+          enabled: false
+      height: 87
+      id: '1774495010079'
+      position:
+        x: 559
+        y: 152
+      positionAbsolute:
+        x: 559
+        y: 152
+      selected: true
+      sourcePosition: right
+      targetPosition: left
+      type: custom
+      width: 241
+    - data:
+        dataset_ids:
+        - hHCmzpn/zXXYp3cZaW1GvxZca934iFmZERmhUiAGebFSXabYcjprMdHGspehwryO
+        multiple_retrieval_config:
+          reranking_enable: false
+          reranking_mode: weighted_score
+          top_k: 4
+          weights:
+            keyword_setting:
+              keyword_weight: 0.3
+            vector_setting:
+              embedding_model_name: nomic-embed-text
+              embedding_provider_name: langgenius/ollama/ollama
+              vector_weight: 0.7
+            weight_type: customized
+        query_variable_selector:
+        - '1774494909944'
+        - sys.query
+        retrieval_mode: multiple
+        selected: false
+        title: 知识检索
+        type: knowledge-retrieval
+      height: 89
+      id: '1774495086824'
+      position:
+        x: 553.0444502159551
+        y: 266.00000000000006
+      positionAbsolute:
+        x: 553.0444502159551
+        y: 266.00000000000006
+      selected: false
+      sourcePosition: right
+      targetPosition: left
+      type: custom
+      width: 241
+    - data:
+        context:
+          enabled: true
+          variable_selector:
+          - '1774495086824'
+          - result
+        model:
+          completion_params:
+            temperature: 0.7
+          mode: chat
+          name: deepseek-v3.1:671b-cloud
+          provider: langgenius/ollama/ollama
+        prompt_config:
+          jinja2_variables: []
+        prompt_template:
+        - edition_type: basic
+          id: 82a9b833-645b-4a0e-9dda-08ae172dd581
+          role: system
+          text: '你是一个专业的知识助手，擅长根据提用户的提问：{{#sys.query#}}
+
+            以及以下相关的资料回答用户问题。
+
+
+            以下是与用户问题相关的资料：
+
+            {{#context#}}
+
+
+            请根据以上资料，结合你的理解，回答用户的问题。要求：
+
+            - 如果资料中包含相关信息，请优先使用资料中的内容。
+
+            - 如果资料中没有相关信息，请基于你的通用知识进行回答。
+
+            - 回答要简洁、准确、逻辑清晰，避免重复。
+
+            - 不要直接复制粘贴原文，要用自己的话总结和解释。
+
+            - 回答中不要出现与这段提示词相关的信息。'
+        selected: false
+        title: LLM 2
+        type: llm
+        vision:
+          enabled: false
+      height: 87
+      id: '1774495099150'
+      position:
+        x: 567
+        y: 416
+      positionAbsolute:
+        x: 567
+        y: 416
+      selected: false
+      sourcePosition: right
+      targetPosition: left
+      type: custom
+      width: 241
+    - data:
+        dataset_ids:
+        - XhzJ9HAPQwD3OxMgrwTBei9HhWzW7O8HcXC+fk2KB/7gwmhf6Cq+CKNelF9BES5y
+        multiple_retrieval_config:
+          reranking_enable: false
+          reranking_mode: weighted_score
+          top_k: 4
+          weights:
+            keyword_setting:
+              keyword_weight: 0.3
+            vector_setting:
+              embedding_model_name: nomic-embed-text
+              embedding_provider_name: langgenius/ollama/ollama
+              vector_weight: 0.7
+            weight_type: customized
+        query_variable_selector:
+        - '1774494909944'
+        - sys.query
+        retrieval_mode: multiple
+        selected: false
+        title: 知识检索 2 (1)
+        type: knowledge-retrieval
+      height: 89
+      id: '17744963445370'
+      position:
+        x: 281
+        y: 591.2530347438759
+      positionAbsolute:
+        x: 281
+        y: 591.2530347438759
+      selected: false
+      sourcePosition: right
+      targetPosition: left
+      type: custom
+      width: 241
+    - data:
+        context:
+          enabled: true
+          variable_selector:
+          - '17744963445370'
+          - result
+        model:
+          completion_params:
+            temperature: 0.7
+          mode: chat
+          name: deepseek-v3.1:671b-cloud
+          provider: langgenius/ollama/ollama
+        prompt_config:
+          jinja2_variables: []
+        prompt_template:
+        - edition_type: basic
+          id: 82a9b833-645b-4a0e-9dda-08ae172dd581
+          jinja2_text: "{% if x.result %}\r\n以下是与用户问题相关的资料：\r\n{% for doc in x.result\
+            \ %}\r\n- {{ doc.content }}\r\n{% endfor %}\r\n\r\n请根据以上资料，结合你的理解，回答用户的问题。要求：\r\
+            \n- 如果资料中包含相关信息，请优先使用资料中的内容。\r\n- 如果资料中没有相关信息，请基于你的通用知识进行回答。\r\n- 回答要简洁、准确、逻辑清晰，避免重复。\r\
+            \n- 不要直接复制粘贴原文，要用自己的话总结和解释。\r\n{% else %}\r\n抱歉，未能找到相关资料，请稍后再试。\r\n{%\
+            \ endif %}"
+          role: system
+          text: '你是一个专业的知识助手，擅长根据提用户的提问：{{#sys.query#}}
+
+            以及以下相关的资料回答用户问题。
+
+
+            以下是与用户问题相关的资料：
+
+            {{#context#}}
+
+
+            请根据以上资料，结合你的理解，回答用户的问题。要求：
+
+            - 如果资料中包含相关信息，请优先使用资料中的内容。
+
+            - 如果资料中没有相关信息，请基于你的通用知识进行回答。
+
+            - 回答要简洁、准确、逻辑清晰，避免重复。
+
+            - 不要直接复制粘贴原文，要用自己的话总结和解释。
+
+            - 回答中不要出现与这段提示词相关的信息。'
+        selected: false
+        title: LLM 2 (1)
+        type: llm
+        vision:
+          enabled: false
+      height: 87
+      id: '17744963747500'
+      position:
+        x: 567
+        y: 591.2530347438759
+      positionAbsolute:
+        x: 567
+        y: 591.2530347438759
+      selected: false
+      sourcePosition: right
+      targetPosition: left
+      type: custom
+      width: 241
+    - data:
+        answer: '{{#1774495010079.text#}}'
+        selected: false
+        title: 直接回复
+        type: answer
+        variables: []
+      height: 102
+      id: '1774496602826'
+      position:
+        x: 861
+        y: 152
+      positionAbsolute:
+        x: 861
+        y: 152
+      sourcePosition: right
+      targetPosition: left
+      type: custom
+      width: 241
+    - data:
+        answer: '{{#1774495099150.text#}}'
+        selected: false
+        title: 直接回复 2
+        type: answer
+        variables: []
+      height: 102
+      id: '1774496613340'
+      position:
+        x: 843
+        y: 367.00000000000006
+      positionAbsolute:
+        x: 843
+        y: 367.00000000000006
+      selected: false
+      sourcePosition: right
+      targetPosition: left
+      type: custom
+      width: 241
+    - data:
+        answer: '{{#17744963747500.text#}}'
+        selected: false
+        title: 直接回复 3
+        type: answer
+        variables: []
+      height: 102
+      id: '1774496622937'
+      position:
+        x: 847.0444502159551
+        y: 582.2530347438759
+      positionAbsolute:
+        x: 847.0444502159551
+        y: 582.2530347438759
+      selected: false
+      sourcePosition: right
+      targetPosition: left
+      type: custom
+      width: 241
+    viewport:
+      x: -131.5
+      y: 4
+      zoom: 1
+  rag_pipeline_variables: []

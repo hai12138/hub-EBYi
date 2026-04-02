@@ -1,0 +1,617 @@
+app:
+  description: ''
+  icon: 🤖
+  icon_background: '#FFEAD5'
+  icon_type: emoji
+  mode: advanced-chat
+  name: RAG问答
+  use_icon_as_answer_icon: false
+dependencies:
+- current_identifier: null
+  type: marketplace
+  value:
+    marketplace_plugin_unique_identifier: langgenius/tongyi:0.0.26@4f1c4ded3d189719b7dd54e9d4e5b26f724f3632f3dfaa299491b42accc112c8
+    version: null
+kind: app
+version: 0.6.0
+workflow:
+  conversation_variables: []
+  environment_variables: []
+  features:
+    file_upload:
+      allowed_file_extensions:
+      - .JPG
+      - .JPEG
+      - .PNG
+      - .GIF
+      - .WEBP
+      - .SVG
+      allowed_file_types:
+      - image
+      allowed_file_upload_methods:
+      - local_file
+      - remote_url
+      enabled: false
+      fileUploadConfig:
+        attachment_image_file_size_limit: 2
+        audio_file_size_limit: 50
+        batch_count_limit: 5
+        file_size_limit: 15
+        file_upload_limit: 20
+        image_file_batch_limit: 10
+        image_file_size_limit: 10
+        single_chunk_attachment_limit: 10
+        video_file_size_limit: 100
+        workflow_file_upload_limit: 10
+      image:
+        enabled: false
+        number_limits: 3
+        transfer_methods:
+        - local_file
+        - remote_url
+      number_limits: 3
+    opening_statement: ''
+    retriever_resource:
+      enabled: true
+    sensitive_word_avoidance:
+      enabled: false
+    speech_to_text:
+      enabled: false
+    suggested_questions: []
+    suggested_questions_after_answer:
+      enabled: false
+    text_to_speech:
+      enabled: false
+      language: ''
+      voice: ''
+  graph:
+    edges:
+    - data:
+        sourceType: start
+        targetType: llm
+      id: 1774545220621-llm
+      selected: false
+      source: '1774545220621'
+      sourceHandle: source
+      target: llm
+      targetHandle: target
+      type: custom
+    - data:
+        isInIteration: false
+        isInLoop: false
+        sourceType: knowledge-retrieval
+        targetType: llm
+      id: 1774546385807-source-1774546777096-target
+      selected: false
+      source: '1774546385807'
+      sourceHandle: source
+      target: '1774546777096'
+      targetHandle: target
+      type: custom
+      zIndex: 0
+    - data:
+        isInIteration: false
+        isInLoop: false
+        sourceType: llm
+        targetType: answer
+      id: 1774546777096--1774547024248-target
+      selected: false
+      source: '1774546777096'
+      sourceHandle: source
+      target: '1774547024248'
+      targetHandle: target
+      type: custom
+      zIndex: 0
+    - data:
+        isInIteration: false
+        isInLoop: false
+        sourceType: knowledge-retrieval
+        targetType: llm
+      id: 1774547082197--1774547096060-target
+      selected: false
+      source: '1774547082197'
+      sourceHandle: source
+      target: '1774547096060'
+      targetHandle: target
+      type: custom
+      zIndex: 0
+    - data:
+        isInIteration: false
+        isInLoop: false
+        sourceType: llm
+        targetType: answer
+      id: 1774547096060--1774547132680-target
+      selected: false
+      source: '1774547096060'
+      sourceHandle: source
+      target: '1774547132680'
+      targetHandle: target
+      type: custom
+      zIndex: 0
+    - data:
+        isInIteration: false
+        isInLoop: false
+        sourceType: llm
+        targetType: if-else
+      id: llm-source-1774548697708-target
+      source: llm
+      sourceHandle: source
+      target: '1774548697708'
+      targetHandle: target
+      type: custom
+      zIndex: 0
+    - data:
+        isInLoop: false
+        sourceType: if-else
+        targetType: knowledge-retrieval
+      id: 1774548697708-true-1774546385807-target
+      source: '1774548697708'
+      sourceHandle: 'true'
+      target: '1774546385807'
+      targetHandle: target
+      type: custom
+      zIndex: 0
+    - data:
+        isInLoop: false
+        sourceType: if-else
+        targetType: knowledge-retrieval
+      id: 1774548697708-35dcfa62-2d70-4c46-a69c-23ef0c806b43-1774547082197-target
+      source: '1774548697708'
+      sourceHandle: 35dcfa62-2d70-4c46-a69c-23ef0c806b43
+      target: '1774547082197'
+      targetHandle: target
+      type: custom
+      zIndex: 0
+    - data:
+        isInIteration: false
+        isInLoop: false
+        sourceType: if-else
+        targetType: llm
+      id: 1774548697708-false-1774549353302-target
+      source: '1774548697708'
+      sourceHandle: 'false'
+      target: '1774549353302'
+      targetHandle: target
+      type: custom
+      zIndex: 0
+    - data:
+        isInIteration: false
+        isInLoop: false
+        sourceType: llm
+        targetType: answer
+      id: 1774549353302-source-answer-target
+      source: '1774549353302'
+      sourceHandle: source
+      target: answer
+      targetHandle: target
+      type: custom
+      zIndex: 0
+    nodes:
+    - data:
+        selected: false
+        title: 开始
+        type: start
+        variables: []
+      height: 72
+      id: '1774545220621'
+      position:
+        x: 178.76237980271725
+        y: 803.2135812001635
+      positionAbsolute:
+        x: 178.76237980271725
+        y: 803.2135812001635
+      selected: true
+      sourcePosition: right
+      targetPosition: left
+      type: custom
+      width: 242
+    - data:
+        context:
+          enabled: false
+          variable_selector: []
+        memory:
+          query_prompt_template: '{{#sys.query#}}
+
+
+            {{#sys.files#}}'
+          role_prefix:
+            assistant: ''
+            user: ''
+          window:
+            enabled: false
+            size: 10
+        model:
+          completion_params:
+            temperature: 0.7
+          mode: chat
+          name: qvq-max-latest
+          provider: langgenius/tongyi/tongyi
+        prompt_template:
+        - id: 2a14e192-9b7c-478d-bb77-596e79a5ced9
+          role: system
+          text: '你是一个意图识别助手，请根据用户问题判断其属于以下哪一类：
+
+
+            意图1：非机器学习、非大模型相关问题
+
+            意图2：机器学习相关问题
+
+            意图3：大模型相关问题
+
+
+            判断规则：
+
+            1. 如果问题涉及机器学习基础理论、传统机器学习算法、模型训练、特征工程、模型评估等内容，输出“意图2”
+
+            2. 如果问题涉及大语言模型、Transformer、Prompt、RAG、Agent、微调、Embedding、Function Calling
+            等内容，输出“意图3”
+
+            3. 如果问题不属于以上两类，输出“意图1”
+
+
+            注意：
+
+            - 只允许输出以下三个结果之一：
+
+            意图1
+
+            意图2
+
+            意图3
+
+            - 不要输出任何解释
+
+            - 不要输出多余内容
+
+
+            用户问题：
+
+            {{#开始节点.query#}}'
+        selected: false
+        title: LLM
+        type: llm
+        vision:
+          enabled: false
+      height: 87
+      id: llm
+      position:
+        x: 448.41369785494055
+        y: 688.0968850521488
+      positionAbsolute:
+        x: 448.41369785494055
+        y: 688.0968850521488
+      selected: false
+      sourcePosition: right
+      targetPosition: left
+      type: custom
+      width: 241
+    - data:
+        answer: '{{#llm.text#}}'
+        selected: false
+        title: 回答
+        type: answer
+        variables: []
+      height: 102
+      id: answer
+      position:
+        x: 1246.1153784528415
+        y: 1119.384125384003
+      positionAbsolute:
+        x: 1246.1153784528415
+        y: 1119.384125384003
+      selected: false
+      sourcePosition: right
+      targetPosition: left
+      type: custom
+      width: 241
+    - data:
+        dataset_ids:
+        - kQRYOa5+ii8vWW9dB80ahDo8iETOfFZKWozV/RYNYts2z8SIbYMl3YB7oG0oMTHz
+        multiple_retrieval_config:
+          reranking_enable: true
+          reranking_mode: reranking_model
+          reranking_model:
+            model: gte-rerank
+            provider: langgenius/tongyi/tongyi
+          top_k: 4
+        query_attachment_selector: []
+        query_variable_selector:
+        - llm
+        - text
+        retrieval_mode: multiple
+        selected: false
+        title: 知识检索
+        type: knowledge-retrieval
+      height: 89
+      id: '1774546385807'
+      position:
+        x: 937.873543435139
+        y: 786.0855832599258
+      positionAbsolute:
+        x: 937.873543435139
+        y: 786.0855832599258
+      selected: false
+      sourcePosition: right
+      targetPosition: left
+      type: custom
+      width: 241
+    - data:
+        context:
+          enabled: true
+          variable_selector:
+          - '1774546385807'
+          - result
+        memory:
+          query_prompt_template: '{{#sys.query#}}
+
+
+            {{#sys.files#}}'
+          role_prefix:
+            assistant: ''
+            user: ''
+          window:
+            enabled: false
+            size: 50
+        model:
+          completion_params:
+            temperature: 0.7
+          mode: chat
+          name: qvq-max-latest
+          provider: langgenius/tongyi/tongyi
+        prompt_template:
+        - id: 97ee92ec-4a28-47b9-9cb0-5a3dfce7f67b
+          role: system
+          text: '你是一个机器学习问答助手，请基于给定的知识库检索内容回答用户问题。
+
+
+            要求：
+
+            1. 优先依据检索内容回答
+
+            2. 回答要清晰、准确、简洁
+
+            3. 如果检索内容不足，可以做少量补充，但不要脱离主题
+
+
+            用户问题：
+
+            {{#开始节点.query#}}
+
+
+            检索到的知识内容：
+
+            {{#机器学习知识检索节点.result#}}'
+        selected: false
+        title: 回答问题
+        type: llm
+        vision:
+          enabled: false
+      height: 87
+      id: '1774546777096'
+      position:
+        x: 1282
+        y: 748.8790617997354
+      positionAbsolute:
+        x: 1282
+        y: 748.8790617997354
+      selected: false
+      sourcePosition: right
+      targetPosition: left
+      type: custom
+      width: 241
+    - data:
+        answer: '{{#1774546777096.text#}}'
+        selected: false
+        title: 回答
+        type: answer
+        variables: []
+      height: 102
+      id: '1774547024248'
+      position:
+        x: 1599.8418811923716
+        y: 765.9468821146253
+      positionAbsolute:
+        x: 1599.8418811923716
+        y: 765.9468821146253
+      selected: false
+      sourcePosition: right
+      targetPosition: left
+      type: custom
+      width: 241
+    - data:
+        dataset_ids:
+        - fBYHWD6/Iw0Ra5weInbbE4XoqfcHNnj0QwvSHF58GJAwEJvRgaeRJuJm5MvsxB7x
+        multiple_retrieval_config:
+          reranking_enable: true
+          reranking_mode: reranking_model
+          reranking_model:
+            model: gte-rerank
+            provider: langgenius/tongyi/tongyi
+          top_k: 4
+        query_attachment_selector: []
+        query_variable_selector:
+        - '1774545220621'
+        - sys.query
+        retrieval_mode: multiple
+        selected: false
+        title: 知识检索 2
+        type: knowledge-retrieval
+      height: 89
+      id: '1774547082197'
+      position:
+        x: 957.4014154700885
+        y: 962.3958388808181
+      positionAbsolute:
+        x: 957.4014154700885
+        y: 962.3958388808181
+      selected: false
+      sourcePosition: right
+      targetPosition: left
+      type: custom
+      width: 241
+    - data:
+        context:
+          enabled: true
+          variable_selector:
+          - '1774547082197'
+          - result
+        memory:
+          query_prompt_template: '{{#sys.query#}}
+
+
+            {{#sys.files#}}'
+          role_prefix:
+            assistant: ''
+            user: ''
+          window:
+            enabled: false
+            size: 50
+        model:
+          completion_params:
+            temperature: 0.7
+          mode: chat
+          name: qvq-max-latest
+          provider: langgenius/tongyi/tongyi
+        prompt_template:
+        - id: 888991c8-f433-4f40-8230-76e0ad3928d5
+          role: system
+          text: '你是一个大模型领域问答助手，请基于给定的知识库检索内容回答用户问题。
+
+
+            要求：
+
+            1. 优先依据检索内容回答
+
+            2. 回答要准确、简洁、结构清晰
+
+            3. 如果检索内容不足，可以做少量常识性补充，但不要脱离问题
+
+
+            用户问题：
+
+            {{#开始节点.query#}}
+
+
+            检索到的知识内容：
+
+            {{#大模型知识检索节点.result#}}'
+        selected: false
+        title: 回答问题
+        type: llm
+        vision:
+          enabled: false
+      height: 87
+      id: '1774547096060'
+      position:
+        x: 1212.9046346760908
+        y: 930.2322849409012
+      positionAbsolute:
+        x: 1212.9046346760908
+        y: 930.2322849409012
+      selected: false
+      sourcePosition: right
+      targetPosition: left
+      type: custom
+      width: 241
+    - data:
+        answer: '{{#1774547096060.text#}}'
+        selected: false
+        title: 回答
+        type: answer
+        variables: []
+      height: 102
+      id: '1774547132680'
+      position:
+        x: 1516.6245129319095
+        y: 930.2322849409012
+      positionAbsolute:
+        x: 1516.6245129319095
+        y: 930.2322849409012
+      selected: false
+      sourcePosition: right
+      targetPosition: left
+      type: custom
+      width: 241
+    - data:
+        cases:
+        - case_id: 'true'
+          conditions:
+          - comparison_operator: contains
+            id: ff5bcadc-50b8-4472-bc4d-cfdc90a783e5
+            value: 意图2
+            varType: string
+            variable_selector:
+            - llm
+            - text
+          id: 'true'
+          logical_operator: and
+        - case_id: 35dcfa62-2d70-4c46-a69c-23ef0c806b43
+          conditions:
+          - comparison_operator: contains
+            id: 41a06a7c-b702-4df5-8d76-80063ebcb5f9
+            value: 意图3
+            varType: string
+            variable_selector:
+            - llm
+            - text
+          logical_operator: and
+        selected: false
+        title: 条件分支
+        type: if-else
+      height: 171
+      id: '1774548697708'
+      position:
+        x: 660.3404941960138
+        y: 855.1236066586129
+      positionAbsolute:
+        x: 660.3404941960138
+        y: 855.1236066586129
+      selected: false
+      sourcePosition: right
+      targetPosition: left
+      type: custom
+      width: 241
+    - data:
+        context:
+          enabled: true
+          variable_selector:
+          - llm
+          - text
+        model:
+          completion_params:
+            temperature: 0.7
+          mode: chat
+          name: qvq-max-latest
+          provider: langgenius/tongyi/tongyi
+        prompt_template:
+        - id: 94cf3b6e-0dfc-40a3-8a03-1061a684e5fc
+          role: system
+          text: '请直接回答用户的问题，要求回答准确、简洁、清晰。
+
+
+            用户问题：
+
+            {{#开始节点.query#}}'
+        selected: false
+        title: 回答问题
+        type: llm
+        vision:
+          enabled: false
+      height: 87
+      id: '1774549353302'
+      position:
+        x: 946.1153784528415
+        y: 1119.384125384003
+      positionAbsolute:
+        x: 946.1153784528415
+        y: 1119.384125384003
+      selected: false
+      sourcePosition: right
+      targetPosition: left
+      type: custom
+      width: 241
+    viewport:
+      x: 67.32272276494416
+      y: -213.7194850277756
+      zoom: 0.6597539553864477
+  rag_pipeline_variables: []

@@ -1,0 +1,483 @@
+app:
+  description: ''
+  icon: 🤖
+  icon_background: '#FFEAD5'
+  icon_type: emoji
+  mode: advanced-chat
+  name: 意图识别rag
+  use_icon_as_answer_icon: false
+dependencies:
+- current_identifier: null
+  type: marketplace
+  value:
+    marketplace_plugin_unique_identifier: langgenius/tongyi:0.1.33@608ec1e7d07dd52e582cff58561a8c75c989951186ffc59452dfffe3d8051230
+    version: null
+kind: app
+version: 0.6.0
+workflow:
+  conversation_variables: []
+  environment_variables: []
+  features:
+    file_upload:
+      allowed_file_extensions:
+      - .JPG
+      - .JPEG
+      - .PNG
+      - .GIF
+      - .WEBP
+      - .SVG
+      allowed_file_types:
+      - image
+      allowed_file_upload_methods:
+      - local_file
+      - remote_url
+      enabled: false
+      fileUploadConfig:
+        attachment_image_file_size_limit: 2
+        audio_file_size_limit: 50
+        batch_count_limit: 5
+        file_size_limit: 15
+        file_upload_limit: 20
+        image_file_batch_limit: 10
+        image_file_size_limit: 10
+        single_chunk_attachment_limit: 10
+        video_file_size_limit: 100
+        workflow_file_upload_limit: 10
+      image:
+        enabled: false
+        number_limits: 3
+        transfer_methods:
+        - local_file
+        - remote_url
+      number_limits: 3
+    opening_statement: ''
+    retriever_resource:
+      enabled: true
+    sensitive_word_avoidance:
+      enabled: false
+    speech_to_text:
+      enabled: false
+    suggested_questions: []
+    suggested_questions_after_answer:
+      enabled: false
+    text_to_speech:
+      enabled: false
+      language: ''
+      voice: ''
+  graph:
+    edges:
+    - data:
+        isInIteration: false
+        isInLoop: false
+        sourceType: start
+        targetType: question-classifier
+      id: 1774422634870-source-1774422697308-target
+      source: '1774422634870'
+      sourceHandle: source
+      target: '1774422697308'
+      targetHandle: target
+      type: custom
+      zIndex: 0
+    - data:
+        isInLoop: false
+        sourceType: question-classifier
+        targetType: llm
+      id: 1774422697308-1-llm-target
+      source: '1774422697308'
+      sourceHandle: '1'
+      target: llm
+      targetHandle: target
+      type: custom
+      zIndex: 0
+    - data:
+        isInIteration: false
+        isInLoop: false
+        sourceType: question-classifier
+        targetType: knowledge-retrieval
+      id: 1774422697308-2-1774422768764-target
+      source: '1774422697308'
+      sourceHandle: '2'
+      target: '1774422768764'
+      targetHandle: target
+      type: custom
+      zIndex: 0
+    - data:
+        isInIteration: false
+        isInLoop: false
+        sourceType: question-classifier
+        targetType: knowledge-retrieval
+      id: 1774422697308-1774422714796-1774422808732-target
+      source: '1774422697308'
+      sourceHandle: '1774422714796'
+      target: '1774422808732'
+      targetHandle: target
+      type: custom
+      zIndex: 0
+    - data:
+        isInIteration: false
+        isInLoop: false
+        sourceType: knowledge-retrieval
+        targetType: llm
+      id: 1774422768764-source-1774422855693-target
+      source: '1774422768764'
+      sourceHandle: source
+      target: '1774422855693'
+      targetHandle: target
+      type: custom
+      zIndex: 0
+    - data:
+        isInIteration: false
+        isInLoop: false
+        sourceType: knowledge-retrieval
+        targetType: llm
+      id: 1774422808732-source-1774422874844-target
+      source: '1774422808732'
+      sourceHandle: source
+      target: '1774422874844'
+      targetHandle: target
+      type: custom
+      zIndex: 0
+    - data:
+        isInLoop: false
+        sourceType: llm
+        targetType: variable-aggregator
+      id: llm-source-1774423415182-target
+      source: llm
+      sourceHandle: source
+      target: '1774423415182'
+      targetHandle: target
+      type: custom
+      zIndex: 0
+    - data:
+        isInLoop: false
+        sourceType: llm
+        targetType: variable-aggregator
+      id: 1774422855693-source-1774423415182-target
+      source: '1774422855693'
+      sourceHandle: source
+      target: '1774423415182'
+      targetHandle: target
+      type: custom
+      zIndex: 0
+    - data:
+        isInLoop: false
+        sourceType: llm
+        targetType: variable-aggregator
+      id: 1774422874844-source-1774423415182-target
+      source: '1774422874844'
+      sourceHandle: source
+      target: '1774423415182'
+      targetHandle: target
+      type: custom
+      zIndex: 0
+    - data:
+        isInLoop: false
+        sourceType: variable-aggregator
+        targetType: answer
+      id: 1774423415182-source-answer-target
+      source: '1774423415182'
+      sourceHandle: source
+      target: answer
+      targetHandle: target
+      type: custom
+      zIndex: 0
+    nodes:
+    - data:
+        selected: false
+        title: 用户输入
+        type: start
+        variables: []
+      height: 72
+      id: '1774422634870'
+      position:
+        x: 80
+        y: 272
+      positionAbsolute:
+        x: 80
+        y: 272
+      selected: false
+      sourcePosition: right
+      targetPosition: left
+      type: custom
+      width: 242
+    - data:
+        context:
+          enabled: false
+          variable_selector: []
+        memory:
+          query_prompt_template: '{{#sys.query#}}
+
+
+            {{#sys.files#}}'
+          role_prefix:
+            assistant: ''
+            user: ''
+          window:
+            enabled: false
+            size: 10
+        model:
+          completion_params:
+            temperature: 0.7
+          mode: chat
+          name: qwen3.5-plus
+          provider: langgenius/tongyi/tongyi
+        prompt_template:
+        - id: 681b002f-1919-429c-93e6-3eff1c50f6c8
+          role: system
+          text: ''
+        selected: false
+        title: LLM
+        type: llm
+        vision:
+          enabled: false
+      height: 87
+      id: llm
+      position:
+        x: 853
+        y: 222
+      positionAbsolute:
+        x: 853
+        y: 222
+      selected: false
+      sourcePosition: right
+      targetPosition: left
+      type: custom
+      width: 241
+    - data:
+        answer: '{{#1774423415182.output#}}'
+        selected: false
+        title: 直接回复
+        type: answer
+        variables: []
+      height: 102
+      id: answer
+      position:
+        x: 1559
+        y: 293
+      positionAbsolute:
+        x: 1559
+        y: 293
+      selected: false
+      sourcePosition: right
+      targetPosition: left
+      type: custom
+      width: 241
+    - data:
+        classes:
+        - id: '1'
+          name: 非机器学习 / 非大模型
+        - id: '2'
+          name: 机器学习提问
+        - id: '1774422714796'
+          name: 大模型提问
+        instructions: ''
+        model:
+          completion_params:
+            temperature: 0.7
+          mode: chat
+          name: qwen3.5-plus
+          provider: langgenius/tongyi/tongyi
+        query_variable_selector:
+        - '1774422634870'
+        - sys.query
+        selected: false
+        title: 问题分类器
+        type: question-classifier
+        vision:
+          enabled: false
+      height: 207
+      id: '1774422697308'
+      position:
+        x: 357
+        y: 277
+      positionAbsolute:
+        x: 357
+        y: 277
+      selected: false
+      sourcePosition: right
+      targetPosition: left
+      type: custom
+      width: 241
+    - data:
+        dataset_ids:
+        - 1sKwhpj0LuYWoWcMqf4mlHT9+APbv6oIhxBMSFiUI1+jzxRneAarcaMTzg61qjuS
+        multiple_retrieval_config:
+          reranking_enable: false
+          reranking_mode: reranking_model
+          reranking_model:
+            model: qwen3-rerank
+            provider: langgenius/tongyi/tongyi
+          top_k: 4
+        query_attachment_selector: []
+        query_variable_selector:
+        - '1774422634870'
+        - sys.query
+        retrieval_mode: multiple
+        selected: false
+        title: 知识检索
+        type: knowledge-retrieval
+      height: 89
+      id: '1774422768764'
+      position:
+        x: 653
+        y: 396
+      positionAbsolute:
+        x: 653
+        y: 396
+      selected: true
+      sourcePosition: right
+      targetPosition: left
+      type: custom
+      width: 241
+    - data:
+        dataset_ids:
+        - 1sKwhpj0LuYWoWcMqf4mlHT9+APbv6oIhxBMSFiUI1+jzxRneAarcaMTzg61qjuS
+        multiple_retrieval_config:
+          reranking_enable: false
+          reranking_mode: reranking_model
+          reranking_model:
+            model: qwen3-rerank
+            provider: langgenius/tongyi/tongyi
+          top_k: 4
+        query_attachment_selector: []
+        query_variable_selector:
+        - '1774422634870'
+        - sys.query
+        retrieval_mode: multiple
+        selected: false
+        title: 知识检索 2
+        type: knowledge-retrieval
+      height: 89
+      id: '1774422808732'
+      position:
+        x: 704
+        y: 541
+      positionAbsolute:
+        x: 704
+        y: 541
+      selected: false
+      sourcePosition: right
+      targetPosition: left
+      type: custom
+      width: 241
+    - data:
+        context:
+          enabled: true
+          variable_selector:
+          - '1774422768764'
+          - result
+        model:
+          completion_params:
+            temperature: 0.7
+          mode: chat
+          name: qwen3.5-plus
+          provider: langgenius/tongyi/tongyi
+        prompt_template:
+        - id: 320af217-12c0-41bb-8126-905926a68b95
+          role: system
+          text: 你是机器学习专家
+        - id: 901c1ad2-c6ec-4a90-9ba0-4f6aa8e8110e
+          role: user
+          text: '用户的提问 ：{{#sys.query#}}
+
+            可以参考的资料：{{#context#}}'
+        selected: false
+        title: LLM 2
+        type: llm
+        vision:
+          enabled: false
+      height: 87
+      id: '1774422855693'
+      position:
+        x: 941
+        y: 360
+      positionAbsolute:
+        x: 941
+        y: 360
+      selected: false
+      sourcePosition: right
+      targetPosition: left
+      type: custom
+      width: 241
+    - data:
+        context:
+          enabled: true
+          variable_selector:
+          - '1774422808732'
+          - result
+        model:
+          completion_params:
+            temperature: 0.7
+          mode: chat
+          name: qwen3.5-plus
+          provider: langgenius/tongyi/tongyi
+        prompt_template:
+        - id: 91575d86-eff1-49c0-97dd-f673d5c3e858
+          role: system
+          text: 你是大模型专家
+        - id: ad48c4f4-59bf-4889-a23d-2525565e9a19
+          role: user
+          text: '用户的提问 : {{#sys.query#}}
+
+            大模型相关的资料：{{#context#}}'
+        selected: false
+        title: LLM 3
+        type: llm
+        vision:
+          enabled: false
+      height: 87
+      id: '1774422874844'
+      position:
+        x: 1006
+        y: 541
+      positionAbsolute:
+        x: 1006
+        y: 541
+      selected: false
+      sourcePosition: right
+      targetPosition: left
+      type: custom
+      width: 241
+    - data:
+        advanced_settings:
+          group_enabled: false
+          groups:
+          - groupId: 6584b14e-dd5e-489a-8b78-83a57206d5af
+            group_name: Group1
+            output_type: string
+            variables:
+            - - llm
+              - text
+            - - '1774422855693'
+              - text
+            - - '1774422874844'
+              - text
+        output_type: string
+        selected: false
+        title: 变量聚合器
+        type: variable-aggregator
+        variables:
+        - - llm
+          - text
+        - - '1774422855693'
+          - text
+        - - '1774422874844'
+          - text
+      height: 159
+      id: '1774423415182'
+      position:
+        x: 1262
+        y: 332
+      positionAbsolute:
+        x: 1262
+        y: 332
+      selected: false
+      sourcePosition: right
+      targetPosition: left
+      type: custom
+      width: 241
+    viewport:
+      x: -396
+      y: -28
+      zoom: 1
+  rag_pipeline_variables: []
