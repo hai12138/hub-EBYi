@@ -1,0 +1,46 @@
+import torch
+from PIL import Image
+from transformers import CLIPProcessor, CLIPModel
+
+# 加载 CLIP 模型和处理器
+model_name = "openai/clip-vit-base-patch32"
+model = CLIPModel.from_pretrained(model_name)
+processor = CLIPProcessor.from_pretrained(model_name)
+
+# ---------------------- 这里换成你本地小狗图片路径 ----------------------
+image_path = "dog.jpg"  # 改成你的图片：./xxx.png 等
+image = Image.open(image_path).convert("RGB")
+
+# 定义候选类别（零样本分类的关键）
+text_descriptions = [
+    "a photo of a dog",
+    "a photo of a cat",
+    "a photo of a bird",
+    "a photo of a rabbit",
+    "a photo of a car",
+    "a photo of a tree",
+]
+
+# 预处理图像和文本
+inputs = processor(
+    text=text_descriptions,
+    images=image,
+    return_tensors="pt",
+    padding=True
+)
+
+# 推理
+with torch.no_grad():
+    outputs = model(**inputs)
+
+# 计算相似度并取概率
+logits_per_image = outputs.logits_per_image
+probs = logits_per_image.softmax(dim=1)
+
+# 输出结果
+for desc, prob in zip(text_descriptions, probs[0]):
+    print(f"{desc:25} | 概率: {prob.item():.4f}")
+
+# 输出最可能类别
+best_idx = probs.argmax().item()
+print("\n预测结果：", text_descriptions[best_idx])
